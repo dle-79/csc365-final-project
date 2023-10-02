@@ -3,8 +3,11 @@
 ## Group Members
 
 Alex Buchko
+
 Victor Phan
+
 Hugh Ganem
+
 Dylan Le
 
 ## Description
