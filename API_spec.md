@@ -7,7 +7,7 @@ Findings a matching recipe according to user specifications
 
 **Request**
 
-```json
+```ts
 {
     "macros"?: {
         "calories"?: {"min": "number", "max": "number"},
@@ -26,7 +26,7 @@ Findings a matching recipe according to user specifications
 
 **Returns**
 
-```json
+```ts
     "recipes": {"recipeID": "string", "ingredientsMultiplier": "float"}
     "success": "boolean",
     "error"?: "string"
@@ -66,7 +66,7 @@ Findings a matching recipe according to user specifications
 
 **Request**
 
-```json
+```ts
 {
   "name": “string”,
   "macros": [“macro1”, “macro2”, …],
@@ -76,7 +76,7 @@ Findings a matching recipe according to user specifications
 
 **Returns**
 
-```json
+```ts
 {
 "success": “boolean”
 }
@@ -112,7 +112,7 @@ Removes all the ingredients from the fridge that are in the recipe
 
 **Request**
 
-```json
+```ts
 {
     “recipe_id” : “string”,
     “scalar” : “number”,
