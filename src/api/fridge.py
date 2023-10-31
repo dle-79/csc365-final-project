@@ -48,3 +48,27 @@ def add_to_fridge(ingredient_id: int, fridge_request: FridgeRequest):
                 "fridge_id": fridge_id,
             }
             connection.execute(query, binds)
+
+@router.post("/ingredients/{recipe_id}/recipe_remove")
+def remove_fridge_ingredients(recipe_id: int, fridge_request: FridgeRequest):
+    with engine.begin() as connection:
+        query = text(
+                """
+                SELECT *
+                FROM recipe_ingredients
+                WHERE recipe_id = :recipe_id
+                """)
+        binds = {"recipe_id" : recipe_id}
+        ingredients_for_recipe = connection.execute(query, binds)
+        for ingrendient in ingredients_for_recipe:
+            fridge_id = get_fridge_id(fridge_request.user_id, connection)
+            query = text(
+                    """
+                    UPDATE fridge
+                    SET quantity = quantity - :quantity
+                    WHERE ingredient_id = :ingredient_id and fridge_id = :fridge_id;
+                    """)
+            binds = {"quantity" : ingrendient.quantity, "ingredient_id" : ingrendient.ingredient_id, "fridge_id": fridge_id}
+            connection.execute(query, binds)
+    return "OK"
+
