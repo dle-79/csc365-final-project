@@ -3,7 +3,10 @@ from pydantic import BaseModel
 from src.database import engine
 from sqlalchemy import text
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/ingredients",
+    tags=["ingredients"]
+)
 
 
 class FridgeRequest(BaseModel):
@@ -18,7 +21,7 @@ def get_fridge_id(user_id: int, connection):
     return result
 
 
-@router.post("/ingredients/{ingredient_id}", tags=["ingredients"])
+@router.post("/add_ingredients")
 def add_to_fridge(ingredient_id: int, fridge_request: FridgeRequest):
     # checking if there's already ingredients in fridge
     with engine.begin() as connection:
@@ -49,7 +52,7 @@ def add_to_fridge(ingredient_id: int, fridge_request: FridgeRequest):
             }
             connection.execute(query, binds)
 
-@router.post("/ingredients/{recipe_id}/recipe_remove")
+@router.post("/remove_repice_ingredients")
 def remove_fridge_ingredients(recipe_id: int, fridge_request: FridgeRequest):
     with engine.begin() as connection:
         query = text(

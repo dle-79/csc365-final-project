@@ -1,10 +1,11 @@
 from fastapi import FastAPI, exceptions
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
-from src.api import fridge
+from src.api import fridge, user
 import json
 import logging
 import sys
+from starlette.middleware.cors import CORSMiddleware
 
 description = """
 Find the recipe of your dreams
@@ -16,11 +17,13 @@ app = FastAPI(
     version="0.0.1",
     terms_of_service="http://example.com/terms/",
     contact={
-        "name": "foo fun",
-        "email": "abuchko@calpoly.edu",
+        "name": "Hugh",
+        "email": "hganem@calpoly.edu",
     },
 )
+
 app.include_router(fridge.router)
+app.include_router(user.router)
 
 
 @app.exception_handler(exceptions.RequestValidationError)
