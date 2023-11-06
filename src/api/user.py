@@ -12,18 +12,31 @@ router = APIRouter(
 
 class NewUser(BaseModel):
     name: str
-    email: str
 
 @router.post("/")
 def create_user(new_user : NewUser):
-
     with db.engine.begin() as connection:
         user_id = connection.execute(sqlalchemy.text(
             """
-            INSERT INTO user (name, email)
-            VALUES (:name, :email)
+            INSERT INTO users (name)
+            VALUES (:name)
             RETURNING user_id
             """),
-            [{"name" : new_user.name, "email" : new_user.email}]).first().user_id
+            [{"name" : new_user.name}]).first().user_id
     return {"user_id": user_id}
 
+@router.get("/{userid}")
+def get_cart(user_id: int):
+    with db.engine.begin() as connection:
+        result = connection.execute(sqlalchemy.text(
+        """
+        SELECT name
+        FROM users
+        WHERE user_id = :user_id;
+        """
+        ),
+        [{"user_id" : user_id}]).first()
+    return [{
+        "user_id" : user_id,
+        "name" : result.name
+    }]

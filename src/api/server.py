@@ -22,12 +22,20 @@ app = FastAPI(
     },
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_methods=["GET", "OPTIONS"],
+    allow_headers=["*"],
+)
+
 app.include_router(fridge.router)
 app.include_router(user.router)
 
 
 @app.exception_handler(exceptions.RequestValidationError)
 @app.exception_handler(ValidationError)
+
 async def validation_exception_handler(request, exc):
     logging.error(f"The client sent invalid data!: {exc}")
     exc_json = json.loads(exc.json())
