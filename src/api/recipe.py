@@ -1,131 +1,129 @@
-from fastapi import APIRouter
+import sqlalchemy
+from src import database as db
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from src.database import engine
-from sqlalchemy import text
+from src.api import auth
 
 router = APIRouter(
-    prefix="/ingredients",
-    tags=["ingredients"]
+    prefix="/recipe",
+    tags=["recipe"]
 )
 
+class RecipeRequestObject(BaseModel):
+    protein : int
+    calories : int
+    vegan : bool
+    vegetarian : bool
+    paleo : bool
+    carbs : int
+    servings : int
+    time_to_make : int
 
-class RecipeRequest(BaseModel):
-    recipe_id: int
+@router.post("/get_recipe")
+def get_recipes(user_id : int, recipe_constraints : RecipeRequestObject):
+    with db.engine.begin() as connection:
+        final_recipes = []
+        recipes = connection.execute(sqlalchemy.text(
+        """
+        SELECT recipe_id
+        FROM recipe
+        WHERE protein >= :protein 
+        AND calories >= :calories
+        AND vegan = :vegan
+        AND vegetarian = :vegetarian
+        AND paleo = :paleo
+        AND carbs >= :carbs
+        AND servings >= :servings
+        AND time_to_make >= :time_to_make
+        """
+        ), [{ "protein": recipe_constraints.protein, 
+             "calories": recipe_constraints.calories, 
+             "vegan": recipe_constraints.vegan, 
+             "vegetarian": recipe_constraints.vegetarian, 
+             "paleo": recipe_constraints.paleo, 
+             "carbs": recipe_constraints.carbs, 
+             "servings": recipe_constraints.servings, 
+            "time_to_make": recipe_constraints.time_to_make}]).all()
 
+        for recipe_id in recipes:
+        #counts number of ingredients that you have enough of
+            good_ingredients = 0
 
-def get_recipe_id(user_id: int, connection):
-    query = text("SELECT recipe_id from recipe WHERE recipe_id = :recipe_id")
-    binds = {"user_id": user_id}
-    result = connection.execute(query, binds).scalar_one()
-    return result
+        #checks if you have ingredients in pantry
+            ingredient_count = connection.execute(sqlalchemy.text(
+            """
+            SELECT COUNT(ingredient_id) AS numIngredient
+            FROM recipe_ingredients
+            WHERE recipe_id = :recipe
+            """
+            ), [{"recipe": recipe_id[0]}]).scalar_one()
 
+            pantry_count = connection.execute(sqlalchemy.text(
+            """
+            SELECT COUNT(fridge.ingredient_id) AS numPantry
+            FROM fridge
+            JOIN recipe_ingredients
+            ON recipe_ingredients.ingredient_id = fridge.ingredient_id
+            WHERE user_id = :user_id
+            """
+            ), [{"user_id": user_id}]).scalar_one()
 
-@router.post("/add_ingredients_to_recipe")
-def add_to_recipe(ingredient_id: int, recipe_request: RecipeRequest):
-    with engine.begin() as connection:
-        recipe_id = get_recipe_id(RecipeRequest.recipe_id, connection)
-        query = text(
-            "SELECT ingredients from recipe WHERE recipe_id = :recipe_id"
-        )
-        binds = {"recipe_id": recipe_id}
-        result = connection.execute(query, binds)
-        if result:
-            query = text(
-                "INSERT INTO recipe(ingredients) VALUES ('{:ingredient_id}') WHERE recipe_id = :recipe_id"
-            )
-            binds = {
-                "ingredient_id": ingredient_id,
-                "recipe_id": recipe_id,
-            }
-            connection.execute(query, binds)
-    
+            if pantry_count < ingredient_count:
+                continue
 
-@router.post("/remove_ingredients_recipe")
-def remove_ingredients_recipe(ingredient_id: int, recipe_request: RecipeRequest):
-    recipe_id = get_recipe_id(RecipeRequest.recipe_id, connection)
-    with engine.begin() as connection:
-        query = text(
+            #add ingredients from recipe to a list
+            ingredient_ids = connection.execute(sqlalchemy.text(
+            """
+            SELECT ingredient_id
+            FROM recipe_ingredients
+            WHERE recipe_id = :recipe
+            """
+            ), [{"recipe": recipe_id[0]}]).all()
+
+            for ingredient_id in ingredient_ids:
+                #checks if you have enough of each ingredient
+                recipe_quant = connection.execute(sqlalchemy.text(
                 """
-                UPDATE recipe
-                SET ingredients = ARRAY_DELETE (:ingredient_id)
-                WHERE recipe_id = :recipe_id
-                """)
-        binds = {"recipe_id" : recipe_id,
-                 "ingredient_id" : ingredient_id}
-        ingredients_remove_recipe = connection.execute(query, binds)
-    return "OK"
-
-@router.post("/get_recipe_content")
-def check_recipe_macros(recipe_id: int, recipe_request: RecipeRequest):
-    with engine.begin() as connection:
-        query = text(
+                SELECT quantity
+                FROM recipe_ingredients
+                WHERE recipe_id = :recipe
+                AND ingredient_id = :ingredient
                 """
-                SELECT *
-                FROM recipe
-                WHERE recipe_id = :recipe_id
-                """)
-        binds = {"recipe_id" : recipe_id}
-        recipe_content = connection.execute(query, binds)
-    return "OK"
+                ), [{"recipe": recipe_id[0],
+                "ingredient": ingredient_id[0]}]).scalar_one()
 
-@router.post("/short_time_recipe")
-def short_recipe(recipe_id: int, recipe_request: RecipeRequest, time_constraint: int):
-    with engine.begin() as connection:
-        query = text(
+            
+
+                fridge_quant = connection.execute(sqlalchemy.text(
                 """
-                SELECT *
-                FROM recipe
-                WHERE recipe_id = :recipe_id AND time_constraint < :time_constraint
-                """)
-        binds = {"recipe_id" : recipe_id,
-                 "time_constraint" : time_constraint}
-        recipe_content = connection.execute(query, binds)
-    return "OK"
-
-@router.post("/macro_friendly_recipe")
-def suggest_recipe_macros(recipe_id: int, recipe_request: RecipeRequest, calorie_count: int, protein_min: int):
-    with engine.begin() as connection:
-        query = text(
-                """
-                SELECT *
-                FROM recipe
-                WHERE recipe_id = :recipe_id AND calories <= :calorie_count AND protein >= :protein_min
-                """)
-        binds = {"recipe_id" : recipe_id,
-                 "calories" : calorie_count,
-                 "protein": protein_min}
-        recipe_content = connection.execute(query, binds)
-    return "OK"
-
-
-@router.post("/available_recipe")
-def check_recipe_availability(fridge_id: int ):
-    #checks to see the most feasible recipe based on the ingredients from the user's fridge
-    with engine.begin() as connection:
-        query = text(
-                """
-                SELECT ingredient_id
+                SELECT quantity
                 FROM fridge
-                """)
-        binds = {""}
-        ingredients_for_recipe = connection.execute(query, binds)
-        for ingredient in ingredients_for_recipe:
-            query = text(
-                    """
-                    UPDATE fridge
-                    SET quantity = quantity - :quantity
-                    WHERE ingredient_id = :ingredient and fridge_id = :fridge_id;
-                    """)
-            binds = { "ingredient_id" : ingredient, "fridge_id": fridge_id}
-            connection.execute(query, binds)
-        query = text(
+                WHERE user_id = :user_id
+                AND ingredient_id = :ingredient
+                """ 
+                ), [{"user_id": user_id,
+                "ingredient": ingredient_id[0]}]).scalar_one()
+
+                if fridge_quant >= recipe_quant:
+                    good_ingredients += 1
+
+            if good_ingredients == ingredient_count:
+                recipe = connection.execute(sqlalchemy.text(
                 """
-                SELECT :ingredient in UNNEST(recipe.ingredients) as available_ingredients
+                SELECT recipe_id, sku, name, steps
                 FROM recipe
-                WHERE in_id = :recipe_id
-                """)
-        binds = {}
-        recipe_content = connection.execute(query, binds)
-    return "OK"
+                WHERE recipe_id = :recipe
+                """
+                ), [{"recipe": recipe_id[0]}]).first()
+
+                final_recipes.append(
+                {"recipe_id": recipe.recipe_id,
+                "sku": recipe.sku,
+                "name": recipe.name,
+                "steps": recipe.steps}
+                )
 
 
+    if len(final_recipes) == 0:
+        return "no recipes available"
+    return final_recipes

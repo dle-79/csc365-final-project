@@ -18,14 +18,14 @@ class Ingredient(BaseModel):
 @router.post("/add_ingredients")
 #input: a list of the ingredients needed and the quantity needed to make the recipe
 def add_to_shopList(ingredients_needed: list[Ingredient], user_id: int):
-    for ingredient in range(len(ingredients_needed)):
+    for ingredient in ingredients_needed:
         # checking if there's already ingredients in fridge
         with db.engine.begin() as connection:
             result = connection.execute(sqlalchemy.text("""
             SELECT quantity
             FROM fridge
-            WHERE ingredient.id = :ingredient
-            AND :user_id = fridge.user_id
+            WHERE ingredient_id = :ingredient
+            AND :user_id = fridge.user_id;
             """),
             [{"ingredient": ingredient.id,
             "user_id": user_id}]).first()
@@ -40,12 +40,12 @@ def add_to_shopList(ingredients_needed: list[Ingredient], user_id: int):
             add_list = ingredient.quantity - quant 
             with db.engine.begin() as connection:
                 connection.execute(sqlalchemy.text("""
-                INSERT INTO shopping_list (user_id, ingredient_id, measurement, purchase)
+                INSERT INTO shopping_list (user_id, ingredient_id, quantity, purchase)
                 VALUES (:user_id, :ingredient, :amount_needed, False)
                 """),
                 [{"user_id": user_id,
                 "ingredient": ingredient.id,
-                "amount_needed": add_list}]).first()
+                "amount_needed": add_list}])
     return "OK"
 
 @router.post("/remove_ingredients")
@@ -57,7 +57,7 @@ def remove_shopList(ingredients_needed: list[Ingredient], user_id: int):
             result = connection.execute(sqlalchemy.text("""
             SELECT quantity
             FROM fridge
-            WHERE ingredient.id = :ingredient
+            WHERE ingredient_id = :ingredient
             AND :user_id = fridge.user_id
             """),
             [{"ingredient": ingredient.id,
