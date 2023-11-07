@@ -19,33 +19,32 @@ class Ingredient(BaseModel):
 #input: a list of the ingredients needed and the quantity needed to make the recipe
 def add_to_shopList(ingredients_needed: list[Ingredient], user_id: int):
     for ingredient in ingredients_needed:
-        # checking if there's already ingredients in fridge
         with db.engine.begin() as connection:
-            result = connection.execute(sqlalchemy.text("""
-            SELECT quantity
-            FROM fridge
-            WHERE ingredient_id = :ingredient
-            AND :user_id = fridge.user_id;
+            connection.execute(sqlalchemy.text("""
+            INSERT INTO shopping_list (user_id, ingredient_id, quantity, purchase)
+            VALUES (:user_id, :ingredient, :amount_needed, False)
             """),
-            [{"ingredient": ingredient.id,
-            "user_id": user_id}]).first()
-            quant = result.quantity
+            [{"user_id": user_id,
+            "ingredient": ingredient.id,
+            "amount_needed": ingredient.quantity}])
+        # checking if there's already ingredients in fridge
+        # with db.engine.begin() as connection:
+        #     result = connection.execute(sqlalchemy.text("""
+        #     SELECT quantity
+        #     FROM fridge
+        #     WHERE ingredient_id = :ingredient
+        #     AND :user_id = fridge.user_id;
+        #     """),
+        #     [{"ingredient": ingredient.id,
+        #     "user_id": user_id}]).first()
+        #     quant = result.quantity
 
-        if quant is None:
-            quant = 0
+        # if quant is None:
+        #     quant = 0
 
-        if quant >= ingredient.quantity:
-            continue
-        else:
-            add_list = ingredient.quantity - quant 
-            with db.engine.begin() as connection:
-                connection.execute(sqlalchemy.text("""
-                INSERT INTO shopping_list (user_id, ingredient_id, quantity, purchase)
-                VALUES (:user_id, :ingredient, :amount_needed, False)
-                """),
-                [{"user_id": user_id,
-                "ingredient": ingredient.id,
-                "amount_needed": add_list}])
+        # if quant >= ingredient.quantity:
+        #     continue
+        # else:
     return "OK"
 
 @router.post("/remove_ingredients")

@@ -33,7 +33,6 @@ def get_recipes(user_id : int, recipe_constraints : RecipeRequestObject):
         AND vegetarian = :vegetarian
         AND paleo = :paleo
         AND carbs >= :carbs
-        AND servings >= :servings
         AND time_to_make >= :time_to_make
         """
         ), [{ "protein": recipe_constraints.protein, 
@@ -42,7 +41,6 @@ def get_recipes(user_id : int, recipe_constraints : RecipeRequestObject):
              "vegetarian": recipe_constraints.vegetarian, 
              "paleo": recipe_constraints.paleo, 
              "carbs": recipe_constraints.carbs, 
-             "servings": recipe_constraints.servings, 
             "time_to_make": recipe_constraints.time_to_make}]).all()
 
         for recipe_id in recipes:
@@ -92,8 +90,6 @@ def get_recipes(user_id : int, recipe_constraints : RecipeRequestObject):
                 ), [{"recipe": recipe_id[0],
                 "ingredient": ingredient_id[0]}]).scalar_one()
 
-            
-
                 fridge_quant = connection.execute(sqlalchemy.text(
                 """
                 SELECT quantity
@@ -102,7 +98,15 @@ def get_recipes(user_id : int, recipe_constraints : RecipeRequestObject):
                 AND ingredient_id = :ingredient
                 """ 
                 ), [{"user_id": user_id,
-                "ingredient": ingredient_id[0]}]).scalar_one()
+                "ingredient": ingredient_id[0]}]).first()
+                
+                if recipe_quant is None:
+                    recipe_quant = 0
+
+                if fridge_quant is None:
+                    fridge_quant = 0
+                else:
+                    fridge_quant = fridge_quant.quantity
 
                 if fridge_quant >= recipe_quant:
                     good_ingredients += 1

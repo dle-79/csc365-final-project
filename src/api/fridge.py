@@ -41,7 +41,7 @@ def add_to_fridge(ingredient_id: int, fridge_request: FridgeRequest):
             ), [{"user_id" : fridge_request.user_id, "ingredient_id" : ingredient_id, "quantity" : fridge_request.quantity}])
             return "Updated ingredient"
 
-@router.post("/remove_repice_ingredients")
+@router.post("/remove_recipe_ingredients")
 def remove_fridge_ingredients(recipe_id: int, user_id: int):
     with db.engine.begin() as connection:
         ingredients = connection.execute(sqlalchemy.text(
@@ -60,24 +60,16 @@ def remove_fridge_ingredients(recipe_id: int, user_id: int):
                 WHERE ingredient_id = :ingredient_id AND user_id = :user_id;
                 """
             ), [{"quantity" : ingredient.quantity, "ingredient_id" : ingredient.ingredient_id, "user_id": user_id}])
+    return "OK"
+
+@router.post("/remove_ingredient")
+def remove_fridge_ingredients(ingredient_id: int, user_id: int):
+    with db.engine.begin() as connection:
+        connection.execute(sqlalchemy.text(
+            """
+                DELETE FROM fridge
+                WHERE ingredient_id = :ingredient_id AND user_id = :user_id;
+            """
+            ), [{"ingredient_id" : ingredient_id, "user_id": user_id}])
         
-    # with engine.begin() as connection:
-    #     query = text(
-    #             """
-    #             SELECT *
-    #             FROM recipe_ingredients
-    #             WHERE recipe_id = :recipe_id
-    #             """)
-    #     binds = {"recipe_id" : recipe_id}
-    #     ingredients_for_recipe = connection.execute(query, binds)
-    #     for ingrendient in ingredients_for_recipe:
-    #         user_id = get_user_id(fridge_request.user_id, connection)
-    #         query = text(
-    #                 """
-    #                 UPDATE fridge
-    #                 SET quantity = quantity - :quantity
-    #                 WHERE ingredient_id = :ingredient_id and user_id = :user_id;
-    #                 """)
-    #         binds = {"quantity" : ingrendient.quantity, "ingredient_id" : ingrendient.ingredient_id, "user_id": user_id}
-    #         connection.execute(query, binds)
     return "OK"

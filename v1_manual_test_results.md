@@ -1,12 +1,6 @@
-Theresa wants to try a paleo diet, but doesn’t know what to make. She first adds all the ingredients she has at home to her virtual pantry. She then restricts the recipes she can give to be paleo friendly. She then receives a recipe and starts to use the ingredients. When Theresa makes it, she removes the ingredients used from her virtual pantry.
-
-- Create a user Theresa POST user/create_user_user__post
-- Theresa starts by calling POST /ingredients/{ingredient_id} to add all the ingredients in her virtual fridge.
-- then Theresa calls POST /recipe/get_recipe with her paleo diet restrictions.
-- She then calls POST  in order to remove the recipes from her virtual pantry
-
 # Example workflow
 Theresa wants to try a paleo diet, but doesn’t know what to make. She first adds all the ingredients she has at home to her virtual pantry. She then restricts the recipes she can give to be paleo friendly. She then receives a recipe and starts to use the ingredients. When Theresa makes it, she removes the ingredients used from her virtual pantry.
+
 - Theresa starts by calling POST /fridge/add_to_fridge_fridge_add_ingredients_post to add all the ingredients in her virtual fridge.
 - then Theresa calls POST /recipes with her paleo diet restrictions.
 - She then calls POST /fridge/remove_fridge_ingredients_fridge_remove_repice_ingredients_post in order to remove the recipes from her virtual fridge.
