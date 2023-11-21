@@ -32,7 +32,7 @@ def add_review(review: Review):
 
 
 @router.get("/get_rating_by_recipe")
-def get_review_by_recipe(recipe_id: int):
+def get_avg_rating_by_recipe(recipe_id: int):
     with db.engine.begin() as connection:
         avg_rating = connection.execute(sqlalchemy.text(
             """SELECT MEAN(rating)
@@ -48,6 +48,14 @@ def get_review_by_recipe(recipe_id: int):
             """
         ), [{"recipe_id" : recipe_id}]).scalar_one()
 
+
+    return("This recipe has an average rating of " + avg_rating + " stars from " + num_reviews + " reviews.")
+
+
+
+@router.get("/get_rating_by_recipe")
+def get_review_by_recipe(recipe_id: int):
+    with db.engine.begin() as connection:
         reviews = connection.execute(sqlalchemy.text(
             """SELECT *
             FROM review
@@ -59,7 +67,6 @@ def get_review_by_recipe(recipe_id: int):
         return("No reviews made")
 
     reviews = []
-    reviews.append("This recipe has an average rating of " + avg_rating + " stars from " + num_reviews + " reviews.")
 
     for review in reviews:
         reviews.append({
