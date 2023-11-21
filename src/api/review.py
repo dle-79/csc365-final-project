@@ -66,16 +66,16 @@ def get_review_by_recipe(recipe_id: int):
     if reviews == None:
         return("No reviews made")
 
-    reviews = []
+    review_list = []
 
     for review in reviews:
-        reviews.append({
+        review_list.append({
             "user_id": review.user_id,
             "rating": review.rating,
             "review": review.review_description,
             "review_created": review.review_date})
     
-    return reviews
+    return review_list
 
 @router.get("/get_review_by_user")
 def get_review_by_user(user_id: int):
@@ -90,16 +90,16 @@ def get_review_by_user(user_id: int):
     if reviews == None:
         return("No reviews made")
     
-    reviews = []
+    review_list = []
     for review in reviews:
-        reviews.append({
+        review_list.append({
             "recipe_id": review.recipe_id,
             "rating": review.rating,
             "review": review.review_description,
             "review_created": review.review_date
         })
     
-    return(reviews)
+    return(review_list)
 
 @router.get("/get_rating_by_user_and_recipe")
 def get_review_by_user(user_id: int, recipe_id: int):
@@ -115,15 +115,15 @@ def get_review_by_user(user_id: int, recipe_id: int):
     if reviews == None:
         return("No reviews made")
     
-    reviews = []
+    review_list = []
     for review in reviews:
-        reviews.append({
+        review_list.append({
             "rating": review.rating,
             "review": review.review_description,
             "review_date": review.review_date
         })
     
-    return(reviews)
+    return(review_list)
 
 
     
