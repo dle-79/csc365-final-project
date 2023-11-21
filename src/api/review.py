@@ -49,7 +49,7 @@ def get_review_by_recipe(recipe_id: int):
         ), [{"recipe_id" : recipe_id}]).scalar_one()
 
         reviews = connection.execute(sqlalchemy.text(
-            """SELECT review_description, review_date
+            """SELECT *
             FROM review
             WHERE recipe_id = :recipe_id
             """
@@ -63,6 +63,8 @@ def get_review_by_recipe(recipe_id: int):
 
     for review in reviews:
         reviews.append({
+            "user_id": review.user_id,
+            "rating": review.rating,
             "review": review.review_description,
             "review_created": review.review_date})
     
