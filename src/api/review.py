@@ -31,7 +31,7 @@ def add_review(review: Review):
     return("Review added!")
 
 
-@router.get("/get_avg_rating_by_recipe")
+@router.get("/get_rating_by_recipe")
 def get_avg_rating_by_recipe(recipe_id: int):
     with db.engine.begin() as connection:
         avg_rating = connection.execute(sqlalchemy.text(
@@ -53,7 +53,7 @@ def get_avg_rating_by_recipe(recipe_id: int):
 
 
 
-@router.get("/get_rating_by_recipe")
+@router.get("/get_review_by_recipe")
 def get_review_by_recipe(recipe_id: int):
     with db.engine.begin() as connection:
         reviews = connection.execute(sqlalchemy.text(
@@ -77,7 +77,7 @@ def get_review_by_recipe(recipe_id: int):
     
     return reviews
 
-@router.get("/get_rating_by_user")
+@router.get("/get_review_by_user")
 def get_review_by_user(user_id: int):
     with db.engine.begin() as connection:
         reviews = connection.execute(sqlalchemy.text(
