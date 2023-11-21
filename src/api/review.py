@@ -39,14 +39,14 @@ def get_avg_rating_by_recipe(recipe_id: int):
             FROM review
             WHERE recipe_id = :recipe_id
             """
-        ), [{"recipe_id" : recipe_id}]).scalar_one()
+        ), [{"recipe_id" : recipe_id}]).scalar()
 
         num_reviews = connection.execute(sqlalchemy.text(
             """SELECT COUNT(rating)
             FROM review
             WHERE recipe_id = :recipe_id
             """
-        ), [{"recipe_id" : recipe_id}]).scalar_one()
+        ), [{"recipe_id" : recipe_id}]).scalar()
 
 
     return("This recipe has an average rating of " + avg_rating + " stars from " + num_reviews + " reviews.")
