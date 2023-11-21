@@ -39,14 +39,14 @@ def get_avg_rating_by_recipe(recipe_id: int):
             FROM review
             WHERE recipe_id = :recipe_id
             """
-        ), [{"recipe_id" : recipe_id}]).scalar_one()
+        ), [{"recipe_id" : recipe_id}]).first()
 
         num_reviews = connection.execute(sqlalchemy.text(
             """SELECT COUNT(rating)
             FROM review
             WHERE recipe_id = :recipe_id
             """
-        ), [{"recipe_id" : recipe_id}]).scalar_one()
+        ), [{"recipe_id" : recipe_id}]).first()
 
 
     return("This recipe has an average rating of " + avg_rating + " stars from " + num_reviews + " reviews.")
@@ -62,9 +62,6 @@ def get_review_by_recipe(recipe_id: int):
             WHERE recipe_id = :recipe_id
             """
         ), [{"recipe_id" : recipe_id}]).all()
-    
-    if reviews == None:
-        return("No reviews made")
 
     review_list = []
 
@@ -75,6 +72,8 @@ def get_review_by_recipe(recipe_id: int):
             "review": review.review_description,
             "review_created": review.review_date})
     
+    if review_list == []:
+        return("Recipe " + recipe_id + " does not have any reviews")
     return review_list
 
 @router.get("/get_review_by_user")
@@ -87,8 +86,6 @@ def get_review_by_user(user_id: int):
             """
         ), [{"user_id" : user_id}]).all()
     
-    if reviews == None:
-        return("No reviews made")
     
     review_list = []
     for review in reviews:
@@ -98,7 +95,9 @@ def get_review_by_user(user_id: int):
             "review": review.review_description,
             "review_created": review.review_date
         })
-    
+
+    if review_list == []:
+        return("User " + user_id + " did not review any recipes")
     return(review_list)
 
 @router.get("/get_rating_by_user_and_recipe")
@@ -123,6 +122,8 @@ def get_review_by_user(user_id: int, recipe_id: int):
             "review_date": review.review_date
         })
     
+    if review_list == []:
+        return("User " + user_id + " did not review recipe " + recipe_id)
     return(review_list)
 
 
