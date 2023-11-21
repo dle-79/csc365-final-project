@@ -35,18 +35,18 @@ def add_review(review: Review):
 def get_avg_rating_by_recipe(recipe_id: int):
     with db.engine.begin() as connection:
         avg_rating = connection.execute(sqlalchemy.text(
-            """SELECT MEAN(rating)
+            """SELECT AVG(rating)
             FROM review
             WHERE recipe_id = :recipe_id
             """
-        ), [{"recipe_id" : recipe_id}]).scalar()
+        ), [{"recipe_id" : recipe_id}]).scalar_one()
 
         num_reviews = connection.execute(sqlalchemy.text(
             """SELECT COUNT(rating)
             FROM review
             WHERE recipe_id = :recipe_id
             """
-        ), [{"recipe_id" : recipe_id}]).scalar()
+        ), [{"recipe_id" : recipe_id}]).scalar_one()
 
 
     return("This recipe has an average rating of " + avg_rating + " stars from " + num_reviews + " reviews.")
@@ -81,10 +81,8 @@ def get_review_by_recipe(recipe_id: int):
 def get_review_by_user(user_id: int):
     with db.engine.begin() as connection:
         reviews = connection.execute(sqlalchemy.text(
-            """SELECT recipe.name AS recipe, recipe_id, rating, review_description, review_date
+            """SELECT recipe_id, rating, review_description, review_date
             FROM review
-            JOIN recipe
-            ON recipe.recipe_id = review.recipe_id
             WHERE user_id = :user_id
             """
         ), [{"user_id" : user_id}]).all()
@@ -95,7 +93,6 @@ def get_review_by_user(user_id: int):
     reviews = []
     for review in reviews:
         reviews.append({
-            "recipe": review.recipe,
             "recipe_id": review.recipe_id,
             "rating": review.rating,
             "review": review.review_description,
