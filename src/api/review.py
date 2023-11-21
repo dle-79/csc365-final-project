@@ -103,7 +103,8 @@ def get_review_by_user(user_id: int, recipe_id: int):
             FROM review
             WHERE user_id = :user_id AND recipe_id = :recipe_id
             """
-        ), [{"user_id" : user_id}]).all()
+        ), [{"user_id" : user_id,
+        "recipe_id": recipe_id}]).all()
     
     if reviews == None:
         return("No reviews made")
