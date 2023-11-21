@@ -39,17 +39,19 @@ def get_avg_rating_by_recipe(recipe_id: int):
             FROM review
             WHERE recipe_id = :recipe_id
             """
-        ), [{"recipe_id" : recipe_id}]).scalar_one()
+        ), [{"recipe_id" : recipe_id}]).scalar()
 
         num_reviews = connection.execute(sqlalchemy.text(
             """SELECT COUNT(rating)
             FROM review
             WHERE recipe_id = :recipe_id
             """
-        ), [{"recipe_id" : recipe_id}]).scalar_one()
+        ), [{"recipe_id" : recipe_id}]).scalar()
+    
+    if avg_rating == None or num_reviews == None:
+        return("There are no reviews for recipe " + str(recipe_id))
 
-
-    return(str("This recipe has an average rating of " + avg_rating + " stars from " + num_reviews + " reviews."))
+    return("This recipe has an average rating of " + str(avg_rating) + " stars from " + str(num_reviews) + " reviews.")
 
 
 
@@ -73,7 +75,7 @@ def get_review_by_recipe(recipe_id: int):
             "review_created": review.review_date})
     
     if review_list == []:
-        return(str("Recipe " + recipe_id + " does not have any reviews"))
+        return("Recipe " + str(recipe_id) + " does not have any reviews")
     return review_list
 
 @router.get("/get_review_by_user")
@@ -97,7 +99,7 @@ def get_review_by_user(user_id: int):
         })
 
     if review_list == []:
-        return(str("User " + user_id + " did not review any recipes"))
+        return("User " + str(user_id) + " did not review any recipes")
     return(review_list)
 
 @router.get("/get_rating_by_user_and_recipe")
@@ -123,7 +125,7 @@ def get_review_by_user(user_id: int, recipe_id: int):
         })
     
     if review_list == []:
-        return(str("User " + user_id + " did not review recipe " + recipe_id))
+        return("User " + str(user_id) + " did not review recipe " + str(recipe_id))
     return(review_list)
 
 
