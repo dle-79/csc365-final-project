@@ -73,3 +73,32 @@ def remove_fridge_ingredients(ingredient_id: int, user_id: int):
             ), [{"ingredient_id" : ingredient_id, "user_id": user_id}])
         
     return "OK"
+
+@router.post("/get_ingredients")
+def get_ingredients(user_id: int):
+    with db.engine.begin() as connection:
+        ingredients = connection.execute(sqlalchemy.text(
+            """
+                SELECT ingredient.name AS name, fridge.quantity AS quant, ingredient.quantity AS units
+                FROM fridge
+                JOIN ingredient
+                ON ingredient.ingredient_id = fridge.ingredient_id
+                WHERE user_id = :user_id
+            """
+            ), [{"user_id": user_id}]).first()
+    
+    ingredients_list = []
+    if ingredients == None:
+        return "No ingredients in fridge"
+    
+    for ingredient in ingredients:
+        ingredients_list.append(
+            {
+                "ingredient": ingredient.name,
+                "quantity": ingredient.quant,
+                "units": ingredient.units
+            }
+        )
+
+        
+    return ingredients_list
