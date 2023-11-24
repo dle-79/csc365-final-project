@@ -85,7 +85,7 @@ def get_ingredients(user_id: int):
                 ON ingredient.ingredient_id = fridge.ingredient_id
                 WHERE user_id = :user_id
             """
-            ), [{"user_id": user_id}]).first()
+            ), [{"user_id": user_id}]).all()
     
     ingredients_list = []
     if ingredients == None:
