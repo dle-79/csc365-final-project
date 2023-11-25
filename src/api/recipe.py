@@ -42,7 +42,7 @@ def get_recipes(user_id : int, recipe_constraints : RecipeRequestObject):
              "paleo": recipe_constraints.paleo, 
              "carbs": recipe_constraints.carbs, 
             "time_to_make": recipe_constraints.time_to_make}]).all()
-        return(recipes)
+        return(recipes.recipe_id)
 
         # for recipe_id in recipes:
 
