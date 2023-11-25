@@ -61,37 +61,39 @@ def get_recipes(user_id : int, recipe_constraints : RecipeRequestObject):
             """
             ), [{"recipe": recipe_id, "user_id": user_id}]).all()
 
-            num_ingredients = connection.execute(sqlalchemy.text(
-                """
-                SELECT COUNT(ingredient_id) AS num_ingredients
-                FROM recipe_ingredients
-                WHERE recipe_id = :recipe_id
-                """
-            ), [{"recipe": recipe_id}]).scalar_one()
+            return(ingredients)
 
-            good_ingredients = 0
+    #         num_ingredients = connection.execute(sqlalchemy.text(
+    #             """
+    #             SELECT COUNT(ingredient_id) AS num_ingredients
+    #             FROM recipe_ingredients
+    #             WHERE recipe_id = :recipe_id
+    #             """
+    #         ), [{"recipe": recipe_id}]).scalar_one()
 
-            for ingredient in ingredients:
-                if ingredient.fridge_quant is not None & ingredient.fridge_quant >= ingredient.recipe_quant:
-                    good_ingredient += 1
+    #         good_ingredients = 0
 
-            if good_ingredients == num_ingredients:
-                recipe = connection.execute(sqlalchemy.text(
-                """
-                SELECT recipe_id, sku, name, steps
-                FROM recipe
-                WHERE recipe_id = :recipe
-                """
-                ), [{"recipe": recipe_id}]).first()
+    #         for ingredient in ingredients:
+    #             if ingredient.fridge_quant is not None & ingredient.fridge_quant >= ingredient.recipe_quant:
+    #                 good_ingredient += 1
 
-                final_recipes.append(
-                {"recipe_id": recipe.recipe_id,
-                "sku": recipe.sku,
-                "name": recipe.name,
-                "steps": recipe.steps}
-                )
+    #         if good_ingredients == num_ingredients:
+    #             recipe = connection.execute(sqlalchemy.text(
+    #             """
+    #             SELECT recipe_id, sku, name, steps
+    #             FROM recipe
+    #             WHERE recipe_id = :recipe
+    #             """
+    #             ), [{"recipe": recipe_id}]).first()
+
+    #             final_recipes.append(
+    #             {"recipe_id": recipe.recipe_id,
+    #             "sku": recipe.sku,
+    #             "name": recipe.name,
+    #             "steps": recipe.steps}
+    #             )
 
 
-    if len(final_recipes) == 0:
-        return "no recipes available"
-    return final_recipes
+    # if len(final_recipes) == 0:
+    #     return "no recipes available"
+    # return final_recipes
