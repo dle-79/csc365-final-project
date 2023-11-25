@@ -42,59 +42,56 @@ def get_recipes(user_id : int, recipe_constraints : RecipeRequestObject):
              "paleo": recipe_constraints.paleo, 
              "carbs": recipe_constraints.carbs, 
             "time_to_make": recipe_constraints.time_to_make}]).all()
-        return(recipes.recipe_id)
 
-        # for recipe_id in recipes:
+        for recipe_id in recipes:
 
-        # #get recipe quant and fridge quant
-        #     ingredients = connection.execute(sqlalchemy.text(
-        #     """
-        #     WITH fridgeIngred AS(
-        #         SELECT ingredient_id, quantity AS fridge_quant
-        #         FROM fridge
-        #         WHERE user_id = :user_id
-        #         )
-        #     SELECT recipe_ingredients.ingredient_id, fridgeIngred.fridge_quant AS fridge_quant, quantity AS recipe_quant
-        #     FROM recipe_ingredients
-        #     LEFT JOIN fridgeIngred
-        #     ON recipe_ingredients.ingredient_id = fridgeIngred.ingredient_id
-        #     WHERE recipe_id = :recipe
-        #     """
-        #     ), [{"recipe": recipe_id, "user_id": user_id}]).all()
+        #get recipe quant and fridge quant
+            ingredients = connection.execute(sqlalchemy.text(
+            """
+            WITH fridgeIngred AS(
+                SELECT ingredient_id, quantity AS fridge_quant
+                FROM fridge
+                WHERE user_id = :user_id
+                )
+            SELECT recipe_ingredients.ingredient_id, fridgeIngred.fridge_quant AS fridge_quant, quantity AS recipe_quant
+            FROM recipe_ingredients
+            LEFT JOIN fridgeIngred
+            ON recipe_ingredients.ingredient_id = fridgeIngred.ingredient_id
+            WHERE recipe_id = :recipe
+            """
+            ), [{"recipe": recipe_id, "user_id": user_id}]).all()
 
-        #     return(ingredients)
+            num_ingredients = connection.execute(sqlalchemy.text(
+                """
+                SELECT COUNT(ingredient_id) AS num_ingredients
+                FROM recipe_ingredients
+                WHERE recipe_id = :recipe_id
+                """
+            ), [{"recipe": recipe_id}]).scalar_one()
 
-    #         num_ingredients = connection.execute(sqlalchemy.text(
-    #             """
-    #             SELECT COUNT(ingredient_id) AS num_ingredients
-    #             FROM recipe_ingredients
-    #             WHERE recipe_id = :recipe_id
-    #             """
-    #         ), [{"recipe": recipe_id}]).scalar_one()
+            good_ingredients = 0
 
-    #         good_ingredients = 0
+            for ingredient in ingredients:
+                if ingredient.fridge_quant is not None & ingredient.fridge_quant >= ingredient.recipe_quant:
+                    good_ingredient += 1
 
-    #         for ingredient in ingredients:
-    #             if ingredient.fridge_quant is not None & ingredient.fridge_quant >= ingredient.recipe_quant:
-    #                 good_ingredient += 1
+            if good_ingredients == num_ingredients:
+                recipe = connection.execute(sqlalchemy.text(
+                """
+                SELECT recipe_id, sku, name, steps
+                FROM recipe
+                WHERE recipe_id = :recipe
+                """
+                ), [{"recipe": recipe_id}]).first()
 
-    #         if good_ingredients == num_ingredients:
-    #             recipe = connection.execute(sqlalchemy.text(
-    #             """
-    #             SELECT recipe_id, sku, name, steps
-    #             FROM recipe
-    #             WHERE recipe_id = :recipe
-    #             """
-    #             ), [{"recipe": recipe_id}]).first()
-
-    #             final_recipes.append(
-    #             {"recipe_id": recipe.recipe_id,
-    #             "sku": recipe.sku,
-    #             "name": recipe.name,
-    #             "steps": recipe.steps}
-    #             )
+                final_recipes.append(
+                {"recipe_id": recipe.recipe_id,
+                "sku": recipe.sku,
+                "name": recipe.name,
+                "steps": recipe.steps}
+                )
 
 
-    # if len(final_recipes) == 0:
-    #     return "no recipes available"
-    # return final_recipes
+    if len(final_recipes) == 0:
+        return "no recipes available"
+    return final_recipes
