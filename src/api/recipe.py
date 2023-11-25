@@ -19,7 +19,7 @@ class RecipeRequestObject(BaseModel):
     servings : int
     time_to_make : int
 
-@router.get("/get_recipe")
+@router.post("/get_recipe")
 def get_recipes(user_id : int, recipe_constraints : RecipeRequestObject):
     with db.engine.begin() as connection:
         final_recipes = []
