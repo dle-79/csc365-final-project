@@ -42,26 +42,27 @@ def get_recipes(user_id : int, recipe_constraints : RecipeRequestObject):
              "paleo": recipe_constraints.paleo, 
              "carbs": recipe_constraints.carbs, 
             "time_to_make": recipe_constraints.time_to_make}]).all()
+        return(recipes)
 
-        for recipe_id in recipes:
+        # for recipe_id in recipes:
 
-        #get recipe quant and fridge quant
-            ingredients = connection.execute(sqlalchemy.text(
-            """
-            WITH fridgeIngred AS(
-                SELECT ingredient_id, quantity AS fridge_quant
-                FROM fridge
-                WHERE user_id = :user_id
-                )
-            SELECT recipe_ingredients.ingredient_id, fridgeIngred.fridge_quant AS fridge_quant, quantity AS recipe_quant
-            FROM recipe_ingredients
-            LEFT JOIN fridgeIngred
-            ON recipe_ingredients.ingredient_id = fridgeIngred.ingredient_id
-            WHERE recipe_id = :recipe
-            """
-            ), [{"recipe": recipe_id, "user_id": user_id}]).all()
+        # #get recipe quant and fridge quant
+        #     ingredients = connection.execute(sqlalchemy.text(
+        #     """
+        #     WITH fridgeIngred AS(
+        #         SELECT ingredient_id, quantity AS fridge_quant
+        #         FROM fridge
+        #         WHERE user_id = :user_id
+        #         )
+        #     SELECT recipe_ingredients.ingredient_id, fridgeIngred.fridge_quant AS fridge_quant, quantity AS recipe_quant
+        #     FROM recipe_ingredients
+        #     LEFT JOIN fridgeIngred
+        #     ON recipe_ingredients.ingredient_id = fridgeIngred.ingredient_id
+        #     WHERE recipe_id = :recipe
+        #     """
+        #     ), [{"recipe": recipe_id, "user_id": user_id}]).all()
 
-            return(ingredients)
+        #     return(ingredients)
 
     #         num_ingredients = connection.execute(sqlalchemy.text(
     #             """
