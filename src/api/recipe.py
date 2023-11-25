@@ -25,7 +25,7 @@ def get_recipes(user_id : int, recipe_constraints : RecipeRequestObject):
         final_recipes = []
         recipes = connection.execute(sqlalchemy.text(
         """
-        SELECT recipe_id
+        SELECT recipe_id, sku
         FROM recipe
         WHERE protein >= :protein 
         AND calories >= :calories
