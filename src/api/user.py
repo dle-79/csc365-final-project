@@ -26,7 +26,7 @@ def create_user(new_user : NewUser):
     return {"user_id": user_id}
 
 @router.get("/{userid}")
-def get_cart(user_id: int):
+def get_user(user_id: int):
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
         """

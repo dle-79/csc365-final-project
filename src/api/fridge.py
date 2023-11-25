@@ -41,8 +41,8 @@ def add_to_fridge(ingredient_id: int, fridge_request: FridgeRequest):
             ), [{"user_id" : fridge_request.user_id, "ingredient_id" : ingredient_id, "quantity" : fridge_request.quantity}])
             return "Updated ingredient"
 
-@router.post("/remove_recipe_ingredients")
-def remove_fridge_ingredients(recipe_id: int, user_id: int):
+@router.put("/remove_recipe_ingredients")
+def remove_recipe_ingredients(recipe_id: int, user_id: int):
     with db.engine.begin() as connection:
         ingredients = connection.execute(sqlalchemy.text(
             """
@@ -62,7 +62,7 @@ def remove_fridge_ingredients(recipe_id: int, user_id: int):
             ), [{"quantity" : ingredient.quantity, "ingredient_id" : ingredient.ingredient_id, "user_id": user_id}])
     return "OK"
 
-@router.post("/remove_ingredient")
+@router.delete("/remove_ingredient")
 def remove_fridge_ingredients(ingredient_id: int, user_id: int):
     with db.engine.begin() as connection:
         connection.execute(sqlalchemy.text(
@@ -74,12 +74,12 @@ def remove_fridge_ingredients(ingredient_id: int, user_id: int):
         
     return "OK"
 
-@router.post("/get_ingredients")
+@router.get("/get_ingredients")
 def get_ingredients(user_id: int):
     with db.engine.begin() as connection:
         ingredients = connection.execute(sqlalchemy.text(
             """
-                SELECT ingredient.name AS name, fridge.quantity AS quant, ingredient.quantity AS units
+                SELECT ingredient.name AS name, fridge.quantity AS quant, ingredient.units AS units
                 FROM fridge
                 JOIN ingredient
                 ON ingredient.ingredient_id = fridge.ingredient_id

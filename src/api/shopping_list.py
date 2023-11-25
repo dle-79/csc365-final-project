@@ -47,7 +47,7 @@ def add_to_shopList(ingredients_needed: list[Ingredient], user_id: int):
         # else:
     return "OK"
 
-@router.post("/remove_ingredients")
+@router.delete("/remove_ingredients")
 #input: a list of the ingredients removed and the quantity needed to make the recipe
 def remove_shopList(ingredients_needed: list[Ingredient], user_id: int):
     for ingredient in range(len(ingredients_needed)):
@@ -79,7 +79,7 @@ def remove_shopList(ingredients_needed: list[Ingredient], user_id: int):
                 "ingredient": ingredient.id}]).first()
     return "OK"
 
-@router.post("/sort_ingredients")
+@router.get("/sort_ingredients")
 #input: a list of the ingredients needed and the quantity needed to make the recipe
 def sort_shopList(user_id: int):
         # checking if there's already ingredients in fridge
