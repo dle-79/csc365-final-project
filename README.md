@@ -2,8 +2,6 @@
 
 ## Group Members
 
-Alex Buchko : abuchko@calpoly.edu
-
 Victor Phan : vphan14@calpoly.edu
 
 Hugh Ganem : hganem@calpoly.edu
