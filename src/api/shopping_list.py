@@ -11,7 +11,7 @@ router = APIRouter(
 )
 
 class Ingredient(BaseModel):
-    id: int
+    ingredient_id: int
     name: str
     quantity: int
 
@@ -25,7 +25,7 @@ def add_to_shopList(ingredients_needed: list[Ingredient], user_id: int):
             VALUES (:user_id, :ingredient, :amount_needed, False)
             """),
             [{"user_id": user_id,
-            "ingredient": ingredient.id,
+            "ingredient": ingredient.ingredient_id,
             "amount_needed": ingredient.quantity}])
         # checking if there's already ingredients in fridge
         # with db.engine.begin() as connection:
@@ -59,7 +59,7 @@ def remove_shopList(ingredients_needed: list[Ingredient], user_id: int):
             WHERE ingredient_id = :ingredient
             AND :user_id = fridge.user_id
             """),
-            [{"ingredient": ingredient.id,
+            [{"ingredient": ingredient.ingredient_id,
             "user_id": user_id}]).first()
             quant = result.quantity
 
@@ -76,7 +76,7 @@ def remove_shopList(ingredients_needed: list[Ingredient], user_id: int):
                 AND ingredient_id = :ingredient
                 """),
                 [{"user_id": user_id,
-                "ingredient": ingredient.id}]).first()
+                "ingredient": ingredient.ingredient_id}]).first()
     return "OK"
 
 @router.get("/sort_ingredients")
