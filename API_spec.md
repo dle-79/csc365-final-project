@@ -107,10 +107,7 @@ Findings a matching recipe according to user specifications
 # Complex Endpoint #2
 ### 2.2 Removing Ingredient by Recipe `/fridge/remove_recipe/ingredients/{recipe_id, user_id}` (POST)
 
-Removes all the ingredients from the fridge that are in the recipe
-
-**Request**
-
+Removes all the ingredients from the fridge that are in the recipe being made
 
 **Returns**
 
@@ -118,20 +115,17 @@ Removes all the ingredients from the fridge that are in the recipe
 { "success": "boolean" }
 ```
 
-### 2.3 Update quantity of ingredient `ingredients/{ingredient_id}` (POST)
+### 2.3 Remove ingredients from the frigde '/fridge/remove_ingredient/{ingredient_id, user_id}' (DELETE)
 
-**Request**
+**Returns**
 
 ```json
 {
-  "user_id": "string",
-  "amount": {
-    "quantity": "number",
-    "unit": "string"
-  }
+  "success": "boolean"
 }
 ```
 
+### 2.4 Get ingredients from a fridge '/fridge/get_ingredients/{user_id}'
 **Returns**
 
 ```json
