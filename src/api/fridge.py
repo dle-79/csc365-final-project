@@ -13,8 +13,17 @@ class FridgeRequest(BaseModel):
     user_id : int
     quantity : int
 
+# complex endpoint 
 @router.post("/add_ingredients")
 def add_to_fridge(ingredient_id: int, fridge_request: FridgeRequest):
+    if fridge_request.user_id is None:
+        return "No user_id"
+    if fridge_request.quantity is None:
+        return "No quantity"
+    if ingredient_id is None:
+        return "No ingredient ID"
+    
+
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
             """
@@ -23,6 +32,8 @@ def add_to_fridge(ingredient_id: int, fridge_request: FridgeRequest):
             WHERE user_id = :user_id AND ingredient_id = :ingredient_id; 
             """
         ), [{"user_id" : fridge_request.user_id, "ingredient_id" : ingredient_id}]).first()
+        
+        # Add to fridge
         if result is None:
             connection.execute(sqlalchemy.text(
                 """
@@ -31,6 +42,7 @@ def add_to_fridge(ingredient_id: int, fridge_request: FridgeRequest):
                 """
             ), [{"user_id" : fridge_request.user_id, "ingredient_id" : ingredient_id, "quantity" : fridge_request.quantity}])
             return "Added ingredient"
+        # Update quantity
         else: 
             connection.execute(sqlalchemy.text(
                 """
@@ -41,8 +53,14 @@ def add_to_fridge(ingredient_id: int, fridge_request: FridgeRequest):
             ), [{"user_id" : fridge_request.user_id, "ingredient_id" : ingredient_id, "quantity" : fridge_request.quantity}])
             return "Updated ingredient"
 
+# Secound Complex Endpoint
 @router.put("/remove_recipe_ingredients")
 def remove_recipe_ingredients(recipe_id: int, user_id: int):
+    if recipe_id is None:
+        return "No recipe ID"
+    if user_id is None:
+        return "No user ID"
+
     with db.engine.begin() as connection:
         ingredients = connection.execute(sqlalchemy.text(
             """
@@ -51,6 +69,10 @@ def remove_recipe_ingredients(recipe_id: int, user_id: int):
             WHERE recipe_id = :recipe_id
             """
         ), [{"recipe_id" : recipe_id}]).all()
+        
+        if ingredients == []:
+            return "No ingredients found"
+
         print(ingredients)
         for ingredient in ingredients:
             connection.execute(sqlalchemy.text(
