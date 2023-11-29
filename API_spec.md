@@ -84,17 +84,15 @@ Findings a matching recipe according to user specifications
 
 ## 2 Virtual Fridge
 
-### 2.1 Adding Ingredient `/ingredients/{ingredient_id}` (PUT)
+### 2.1 Adding Ingredient `/fridge/add_ingredients/{ingredient_id}` (POST)
+## Complex Endpoint #1
 
 **Request**
 
 ```json
 {
-  "user_id": "string",
-  "amnount": {
-    "quantity": "number",
-    "unit": "string"
-  }
+    "user_id": 0,
+    "quantity": 0
 }
 ```
 
@@ -106,19 +104,13 @@ Findings a matching recipe according to user specifications
 }
 ```
 
-### 2.2 Removing Ingredient by Recipe `/ingredients/recipe_remove` (POST)
+# Complex Endpoint #2
+### 2.2 Removing Ingredient by Recipe `/fridge/remove_recipe/ingredients/{recipe_id, user_id}` (POST)
 
 Removes all the ingredients from the fridge that are in the recipe
 
 **Request**
 
-```ts
-{
-    “recipe_id” : “string”,
-    “scalar” : “number”,
-    “user_id” “string”
-}
-```
 
 **Returns**
 
