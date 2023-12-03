@@ -29,7 +29,7 @@ def get_recipes_parameter(user_id : int, recipe_constraints : RecipeMarcosObject
     with db.engine.begin() as connection:
         recipes = connection.execute(sqlalchemy.text(
         """
-        SELECT recipe_id, name
+        SELECT recipe_id, name, steps
         FROM recipe
         WHERE protein >= :min_protein 
         AND protein <= :max_protein 
@@ -62,7 +62,6 @@ def get_recipes_parameter(user_id : int, recipe_constraints : RecipeMarcosObject
 
             final_recipes.append(
                 {"recipe_id": recipe_id.recipe_id,
-                "sku": recipe_id.sku,
                 "name": recipe_id.name,
                 "steps": recipe_id.steps}
                 )
