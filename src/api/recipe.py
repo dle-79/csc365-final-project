@@ -70,9 +70,8 @@ def get_recipes_parameter(recipe_constraints : RecipeMarcosObject):
             for ingredient in ingredients:
                 ingredient_list.append(ingredient.name + str(ingredient.quant) + ingredient.units)
 
-            final_recipes.append(
-                {"recipe_id": recipe_id.recipe_id,
-                "ingredients": ingredient_list
+            final_recipes.append({"recipe_id": recipe_id.recipe_id,
+                "ingredients": ingredient_list,
                 "name": recipe_id.name,
                 "steps": recipe_id.steps}
                 )
