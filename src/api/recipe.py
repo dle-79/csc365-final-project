@@ -108,7 +108,11 @@ def get_recipes_by_name(recipe_name: str):
                 WHERE recipe_ingredients.recipe_id = :recipe_id"""),
                 [{"recipe_id": recipe_id.recipe_id}]).all()
             for ingredient in ingredients:
-                ingredient_list.append(ingredient.name + str(ingredient.quant) + ingredient.units)
+                ingredient_list.append({
+                    "ingredient": ingredient.name,
+                    "quantity": ingredient.quant,
+                    "units": ingredient.units
+                })
 
             final_recipes.append({
                 "recipe_id": recipe_id.recipe_id,
