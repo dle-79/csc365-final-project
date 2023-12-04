@@ -86,8 +86,8 @@ def get_recipes_parameter(recipe_constraints : RecipeMarcosObject):
 @router.post("/get_recipe_name")
 def get_recipes_by_name(recipe_name: str):
     final_recipes = []
-    recipe_name = recipe_name.lower()
-    recipe_name = recipe_name.title()
+    name = recipe_name.lower()
+    name = recipe_name.title()
     with db.engine.begin() as connection:
         recipes = connection.execute(sqlalchemy.text(
         """
@@ -96,7 +96,7 @@ def get_recipes_by_name(recipe_name: str):
         WHERE name LIKE ":name%"
         LIMIT 10
         """
-        ), [{ "name": recipe_name}]).all()
+        ), [{ "name": name}]).all()
 
         for recipe_id in recipes:
             ingredient_list = []
