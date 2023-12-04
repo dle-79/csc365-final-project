@@ -127,44 +127,45 @@ def get_recipes_by_name(recipe_name: str):
     return final_recipes
 
 
-# @router.post("/check_recipe_ingredient")
-# def get_recipes_parameter(user_id: int, recipe_id: int):
+@router.post("/check_recipe_ingredient")
+def get_recipes_parameter(user_id: int, recipe_id: int):
 
-#     #get recipe quant and fridge quant
-#             ingredients = connection.execute(sqlalchemy.text(
-#             """
-#             WITH fridgeIngred AS(
-#                 SELECT ingredient_id, quantity AS fridge_quant
-#                 FROM fridge
-#                 WHERE user_id = :user_id
-#                 )
-#             SELECT recipe_ingredients.ingredient_id, fridgeIngred.fridge_quant AS fridge_quant, quantity AS recipe_quant
-#             FROM recipe_ingredients
-#             LEFT JOIN fridgeIngred
-#             ON recipe_ingredients.ingredient_id = fridgeIngred.ingredient_id
-#             WHERE recipe_id = :recipe
-#             """
-#             ), [{"recipe": recipe_id, "user_id": user_id}]).all()
+    with db.engine.begin() as connection:
+    #get recipe quant and fridge quant
+        ingredients = connection.execute(sqlalchemy.text(
+            """
+            WITH fridgeIngred AS(
+                SELECT ingredient_id, quantity AS fridge_quant
+                FROM fridge
+                WHERE user_id = :user_id
+                )
+            SELECT recipe_ingredients.ingredient_id, fridgeIngred.fridge_quant AS fridge_quant, quantity AS recipe_quant
+            FROM recipe_ingredients
+            LEFT JOIN fridgeIngred
+            ON recipe_ingredients.ingredient_id = fridgeIngred.ingredient_id
+            WHERE recipe_id = :recipe
+            """
+            ), [{"recipe": recipe_id, "user_id": user_id}]).all()
 
-#             num_ingredients = connection.execute(sqlalchemy.text(
-#                 """
-#                 SELECT COUNT(ingredient_id) AS num_ingredients
-#                 FROM recipe_ingredients
-#                 WHERE recipe_id = :recipe_id
-#                 """
-#             ), [{"recipe": recipe_id}]).scalar_one()
+        num_ingredients = connection.execute(sqlalchemy.text(
+                """
+                SELECT COUNT(ingredient_id) AS num_ingredients
+                FROM recipe_ingredients
+                WHERE recipe_id = :recipe_id
+                """
+            ), [{"recipe": recipe_id}]).scalar_one()
 
-#             good_ingredients = 0
+        good_ingredients = 0
 
-#             for ingredient in ingredients:
-#                 if ingredient.fridge_quant is not None & ingredient.fridge_quant >= ingredient.recipe_quant:
-#                     good_ingredient += 1
+        for ingredient in ingredients:
+            if ingredient.fridge_quant is not None & ingredient.fridge_quant >= ingredient.recipe_quant:
+                   good_ingredient += 1
 
-#             if good_ingredients == num_ingredients:
-#                 recipe = connection.execute(sqlalchemy.text(
-#                 """
-#                 SELECT recipe_id, sku, name, steps
-#                 FROM recipe
-#                 WHERE recipe_id = :recipe
-#                 """
-#                 ), [{"recipe": recipe_id}]).first()
+        if good_ingredients == num_ingredients:
+            recipe = connection.execute(sqlalchemy.text(
+                """
+                SELECT recipe_id, sku, name, steps
+                FROM recipe
+                WHERE recipe_id = :recipe
+                """
+            ), [{"recipe": recipe_id}]).first()
