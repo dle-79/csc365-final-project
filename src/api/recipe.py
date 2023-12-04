@@ -24,7 +24,7 @@ class RecipeMarcosObject(BaseModel):
     meal_type: str = "Dinner"
 
 @router.post("/get_recipe_macros")
-def get_recipes_parameter(user_id : int, recipe_constraints : RecipeMarcosObject):
+def get_recipes_parameter(recipe_constraints : RecipeMarcosObject):
     final_recipes = []
     with db.engine.begin() as connection:
         recipes = connection.execute(sqlalchemy.text(
@@ -54,14 +54,25 @@ def get_recipes_parameter(user_id : int, recipe_constraints : RecipeMarcosObject
              "vegan": recipe_constraints.vegan, 
              "vegetarian": recipe_constraints.vegetarian, 
              "paleo": recipe_constraints.paleo, 
-            "time_to_make": recipe_constraints.time_to_make,
+            "max_time_to_make": recipe_constraints.max_time_to_make,
             "country_origin": recipe_constraints.country_origin,
             "meal_type": recipe_constraints.meal_type}]).all()
 
         for recipe_id in recipes:
+            ingredient_list = []
+            ingredients = connection.execute(sqlalchemy.text(
+                """ SELECT name, recipe_ingredients.quantity AS quant, units
+                FROM ingredient
+                JOIN recipe_ingredients
+                ON ingredient.ingredient_id = recipe_ingredients.ingredient_id
+                WHERE recipe_ingredients.recipe_id = :recipe_id"""),
+                [{"recipe_id": recipe_id.recipe_id}]).all()
+            for ingredient in ingredients:
+                ingredient_list.append(ingredient.name + str(ingredient.quant) + ingredient.units)
 
             final_recipes.append(
                 {"recipe_id": recipe_id.recipe_id,
+                "ingredients": ingredient_list
                 "name": recipe_id.name,
                 "steps": recipe_id.steps}
                 )
