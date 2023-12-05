@@ -12,7 +12,7 @@ router = APIRouter(
 
 class Ingredient(BaseModel):
     ingredient_id: int
-    quantity: int
+    quantity: float
 
 @router.post("/add_ingredients")
 #input: a list of the ingredients needed and the quantity needed to make the recipe

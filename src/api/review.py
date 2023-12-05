@@ -18,6 +18,8 @@ class Review(BaseModel):
 
 @router.post("/add_review")
 def add_review(review: Review):
+    if review.rating != 1 and review.rating != 2 and review.rating != 3 and review.rating != 4 and review.rating != 5:
+        return "insert valid rating, int from 1-5"
     with db.engine.begin() as connection:
         connection.execute(sqlalchemy.text(
                 """
