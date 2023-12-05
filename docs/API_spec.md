@@ -293,5 +293,96 @@ Get fridge ingredients
     }
 ]
 ```
+## 5 Reviews
+
+Reviews for recipes
+
+### 5.1 Add New Review `/add_review` (POST)
+
+**Request**
+
+```json
+{
+    "review": {
+        "user_id": integer
+        "recipe_id": integer
+        "rating": integer
+        "review": string
+    }
+}
+```
+
+**Return**
+```
+"Review added!"
+```
+
+### 5.2 Get the average review of a recipe `/get_rating_by_recipe` (GET)
+
+**Request**
+
+```json
+{
+    "recipe_id": integer
+}
+```
+
+**Return**
+```
+"string"
+```
+
+### 5.3 Get reviews of a recipe `/get_review_by_recipe` (GET)
+
+**Request**
+
+```json
+{
+    "recipe_id": integer
+}
+```
+
+**Return**
+```
+[
+    "review": string
+]
+```
+
+### 5.4 Get reviews of a recipes by user `/get_review_by_user` (GET)
+
+**Request**
+
+```json
+{
+    "user_id": integer
+}
+```
+
+**Return**
+```
+[
+    "review": string
+]
+```
+
+### 5.5 Get reviews of a recipe by user and recipe  `/get_rating_by_user_and_recipe` (GET)
+
+**Request**
+
+```json
+{
+    "user_id": integer
+    "recipe_id": integer
+}
+```
+
+**Return**
+```
+[
+    "review": string
+]
+```
+
 
 
