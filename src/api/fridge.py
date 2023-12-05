@@ -27,19 +27,23 @@ def get_catalog():
 
 
 class FridgeRequest(BaseModel):
-    user_id : int
+    ingredient_id : int
     quantity : int
 
 
 # complex endpoint 
 @router.post("/add_ingredients")
-def add_to_fridge(ingredient_id: int, fridge_request: FridgeRequest):
-    if fridge_request.user_id is None:
+def add_to_fridge(user_id: int, fridge_request: FridgeRequest):
+    if user_id is None:
         return "No user_id"
     if fridge_request.quantity is None:
         return "No quantity"
-    if ingredient_id is None:
+    if fridge_request.ingredient_id is None:
         return "No ingredient ID"
+    if fridge_request.ingredient_id < 1 or fridge_request.ingredient_id > 1662:
+        return "invalid ingredient id"
+    if fridge_request.quantity < 0:
+        return "invalid ingredient quantity"
     
 
     with db.engine.begin() as connection:
@@ -49,7 +53,7 @@ def add_to_fridge(ingredient_id: int, fridge_request: FridgeRequest):
             FROM fridge
             WHERE user_id = :user_id AND ingredient_id = :ingredient_id; 
             """
-        ), [{"user_id" : fridge_request.user_id, "ingredient_id" : ingredient_id}]).scalar()
+        ), [{"user_id" : user_id, "ingredient_id" : fridge_request.ingredient_id}]).scalar()
         
         # Add to fridge
         if result is None:
@@ -58,7 +62,7 @@ def add_to_fridge(ingredient_id: int, fridge_request: FridgeRequest):
                 INSERT INTO fridge (user_id, ingredient_id, quantity)
                 VALUES (:user_id, :ingredient_id, :quantity);
                 """
-            ), [{"user_id" : fridge_request.user_id, "ingredient_id" : ingredient_id, "quantity" : fridge_request.quantity}])
+            ), [{"user_id" : user_id, "ingredient_id" : fridge_request.ingredient_id, "quantity" : fridge_request.quantity}])
             return "Added ingredient"
         # Update quantity
         else: 
@@ -68,7 +72,7 @@ def add_to_fridge(ingredient_id: int, fridge_request: FridgeRequest):
                 SET quantity = quantity + :quantity
                 WHERE user_id = :user_id AND ingredient_id = :ingredient_id; 
                 """
-            ), [{"user_id" : fridge_request.user_id, "ingredient_id" : ingredient_id, "quantity" : fridge_request.quantity}])
+            ), [{"user_id" :  user_id, "ingredient_id" : fridge_request.ingredient_id, "quantity" : fridge_request.quantity}])
             return "Updated ingredient"
 
 
@@ -80,6 +84,8 @@ def remove_recipe_ingredients_from_fridge(recipe_id: int, user_id: int):
         return "No recipe ID"
     if user_id is None:
         return "No user ID"
+    if recipe_id < 1 or recipe_id > 2031:
+        return "invalid recipe_id"
 
     with db.engine.begin() as connection:
         ingredients = connection.execute(sqlalchemy.text(
@@ -94,21 +100,7 @@ def remove_recipe_ingredients_from_fridge(recipe_id: int, user_id: int):
             return "No ingredients found"
 
         for ingredient in ingredients:
-            connection.execute(sqlalchemy.text(
-                """
-                SELECT fridge.quantity
-                FROM fridge
-                WHERE ingredient_id = :ingredient_id AND fridge.user_id = :user_id;
-                """
-            ))
-            
-            connection.execute(sqlalchemy.text(
-                """
-                UPDATE fridge
-                SET quantity = quantity - :quantity
-                WHERE ingredient_id = :ingredient_id AND user_id = :user_id;
-                """
-            ), [{"quantity" : ingredient.quantity, "ingredient_id" : ingredient.ingredient_id, "user_id": user_id}])
+            remove_ingredients_from_fridge(ingredient.ingredient_id, user_id, ingredient.quantity)
     return "OK"
 
 @router.delete("/remove_ingredient")

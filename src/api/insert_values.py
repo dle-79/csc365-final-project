@@ -102,7 +102,7 @@ def create_fridge_items():
         num_fridge = randint(10, 50)
         fridge_items = []
         while len(fridge_items) < num_fridge:
-            ingredient = randint(1, 13000)
+            ingredient = randint(1, 1662)
             if ingredient not in fridge_items:
                 fridge_items.append(ingredient)
         for h in range(len(fridge_items)):

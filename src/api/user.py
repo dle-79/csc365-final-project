@@ -15,7 +15,7 @@ router = APIRouter(
 class NewUser(BaseModel):
     name: str
 
-@router.post("/")
+@router.post("/create_user")
 def create_user(new_user : NewUser):
     with db.engine.begin() as connection:
         user_id = connection.execute(sqlalchemy.text(
@@ -28,7 +28,7 @@ def create_user(new_user : NewUser):
     return {"user_id": user_id}
 
 
-@router.get("/{userid}")
+@router.get("/get_user/{userid}")
 def get_user_id(user_id: int):
     with db.engine.begin() as connection:
         name = connection.execute(sqlalchemy.text(
@@ -44,20 +44,3 @@ def get_user_id(user_id: int):
         return "No user with that id"
     
     return [{"user_id" : user_id, "name" : name}]
-
-
-@router.get("/{username}")
-def get_username(username: str):
-    with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text(
-        """
-        SELECT user_id
-        FROM users
-        WHERE name = :username;
-        """
-        ),
-        [{"user_id" : username}]).scalar_one()
-    return [{
-        "user_id" : result,
-        "name" : username
-    }]

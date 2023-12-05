@@ -12,7 +12,6 @@ router = APIRouter(
 
 class Ingredient(BaseModel):
     ingredient_id: int
-    name: str
     quantity: int
 
 @router.post("/add_ingredients")
@@ -83,20 +82,40 @@ def remove_shopList(ingredients_needed: list[Ingredient], user_id: int):
 #input: a list of the ingredients needed and the quantity needed to make the recipe
 def sort_shopList(user_id: int, parameter: str):
         # checking if there's already ingredients in fridge
-    if parameter != "aisle" or parameter != "name" or parameter != "quantity":
+    if parameter != "aisle" and parameter != "name" and parameter != "amount":
         return("Error: Invalid parameter type")
     
     with db.engine.begin() as connection:
-        ingredients = connection.execute(sqlalchemy.text("""
-            SELECT name, aisle, shopping_list.quantity AS amount, quantity AS unit
-            FROM ingredient
-            JOIN shopping_list 
-            ON ingredient.id = shopping_list.ingredient_id
-            WHERE :user_id = fridge.user_id
-            ORDER BY :parameter
-            """),
-            [{"user_id": user_id,
-            "parameter": parameter}]).all()
+        if parameter == "aisle":
+            ingredients = connection.execute(sqlalchemy.text("""
+                SELECT name, aisle, shopping_list.quantity AS amount, units
+                FROM ingredient
+                JOIN shopping_list 
+                ON ingredient.ingredient_id = shopping_list.ingredient_id
+                WHERE shopping_list.user_id = :user_id
+                ORDER BY aisle
+                """),
+                [{"user_id": user_id}]).all()
+        elif parameter == "name":
+            ingredients = connection.execute(sqlalchemy.text("""
+                SELECT name, aisle, shopping_list.quantity AS amount, units
+                FROM ingredient
+                JOIN shopping_list 
+                ON ingredient.ingredient_id = shopping_list.ingredient_id
+                WHERE shopping_list.user_id = :user_id
+                ORDER BY name
+                """),
+                [{"user_id": user_id}]).all()
+        else:
+            ingredients = connection.execute(sqlalchemy.text("""
+                SELECT name, aisle, shopping_list.quantity AS amount, units
+                FROM ingredient
+                JOIN shopping_list 
+                ON ingredient.ingredient_id = shopping_list.ingredient_id
+                WHERE shopping_list.user_id = :user_id
+                ORDER BY amount
+                """),
+                [{"user_id": user_id}]).all()
  
     ingredient_list = []
 
@@ -104,7 +123,8 @@ def sort_shopList(user_id: int, parameter: str):
         ingredient_list.append({
             "ingredient": ingredient.name,
             "quantity": ingredient.amount,
-            "units": ingredient.unit
+            "units": ingredient.units,
+            "aisle": ingredient.aisle
         })
     
     if len(ingredient_list) == 0:

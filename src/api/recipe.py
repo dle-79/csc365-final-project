@@ -23,7 +23,7 @@ class RecipeMarcosObject(BaseModel):
     country_origin: str = "United States"
     meal_type: str = "Dinner"
 
-@router.post("/get_recipe_macros")
+@router.get("/get_recipe_macros")
 def get_recipes_parameter(recipe_constraints : RecipeMarcosObject):
     final_recipes = []
     with db.engine.begin() as connection:
@@ -68,7 +68,7 @@ def get_recipes_parameter(recipe_constraints : RecipeMarcosObject):
                 WHERE recipe_ingredients.recipe_id = :recipe_id"""),
                 [{"recipe_id": recipe_id.recipe_id}]).all()
             for ingredient in ingredients:
-                ingredient_list.append(ingredient.name + str(ingredient.quant) + ingredient.units)
+                ingredient_list.append("ingredient: " + ingredient.name + ". quantity: " + str(ingredient.quant) + " " + ingredient.units)
 
             final_recipes.append({
                 "recipe_id": recipe_id.recipe_id,
@@ -83,16 +83,17 @@ def get_recipes_parameter(recipe_constraints : RecipeMarcosObject):
     return final_recipes
 
 
-@router.post("/get_recipe_name")
+@router.get("/get_recipe_name")
 def get_recipes_by_name(recipe_name: str):
     final_recipes = []
+    recipe_name = recipe_name + '%'
 
     with db.engine.begin() as connection:
         recipes = connection.execute(sqlalchemy.text(
         """
-        SELECT recipe_id, name, steps, description
+        SELECT recipe_id, name, steps
         FROM recipe
-        WHERE name LIKE ":name%"
+        WHERE name LIKE :name
         LIMIT 10
         """
         ), [{ "name": recipe_name}]).all()
@@ -114,10 +115,9 @@ def get_recipes_by_name(recipe_name: str):
                 })
 
             final_recipes.append({
-                "recipe_id": recipe_id.recipe_id,
-                "description": recipe_id.description,
-                "ingredients": ingredient_list,
                 "name": recipe_id.name,
+                "recipe_id": recipe_id.recipe_id,
+                "ingredients": ingredient_list,
                 "steps": recipe_id.steps}
                 )
 
@@ -155,7 +155,7 @@ def check_recipe_ingredients(user_id: int, recipe_id: int, servings: int):
                 FROM recipe_ingredients
                 WHERE recipe_id = :recipe_id
                 """
-            ), [{"recipe": recipe_id}]).scalar_one()
+            ), [{"recipe_id": recipe_id}]).scalar_one()
         
         serving_size = connection.execute(sqlalchemy.text(
             """
@@ -168,8 +168,11 @@ def check_recipe_ingredients(user_id: int, recipe_id: int, servings: int):
         serving_ratio = servings/serving_size
 
         for ingredient in ingredients:
-            if ingredient.fridge_quant is not None & serving_ratio*ingredient.fridge_quant >= ingredient.recipe_quant:
-                good_ingredient += 1
+            fridge_amount = ingredient.fridge_quant
+            if fridge_amount is None:
+                fridge_amount = 0
+            if fridge_amount >= ingredient.recipe_quant*serving_ratio:
+                good_ingredients += 1
                 
 
         if good_ingredients == num_ingredients:
@@ -206,7 +209,7 @@ def get_recipe_ingredients(user_id: int, servings: int):
                             "ingredient": ingredient.name,
                             "quantity": ingredient.quant,
                             "units": ingredient.units
-                    })
+                        })
                     recipe = connection.execute(sqlalchemy.text(
                         """
                         SELECT recipe_id, name,  steps
@@ -217,10 +220,10 @@ def get_recipe_ingredients(user_id: int, servings: int):
 
                     final_recipes.append({
                         "recipe_id": recipe.recipe_id,
-                        "ingredients": ingredient_list,
                         "name": recipe.name,
+                        "ingredients": ingredient_list,
                         "steps": recipe.steps}
-                        )
+                    )
     if len(final_recipes) == 0:
         return("no recipes available")
     return final_recipes  
