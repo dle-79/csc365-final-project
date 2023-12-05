@@ -4,17 +4,17 @@
 - /ingredients (GET) endpoint to see what is in the fridge would be helpful for knowing what to add/update
   - Added get_fridge_ingredients to fridge.py
 - Adding Ingredient /ingredients/{ingredient_id} should be POST instead of PUT
-  - Updated
-1. Update quantity of ingredient ingredients/{ingredient_id} should be PUT instead of POST
-   - Updated
-1. Removing Ingredient by Recipe /ingredients/recipe_remove should be DELETE instead of POST
-   - updated
-1. Query Recipes /recipes should be get instead of POST
-   - updated
-1. Similiar endpoints like Add recipe to the catalog (PUT) and Sort shopping list /shoppingList/sort (POST) also need to be changed but are similar to 2-5.
-   - Updated
-1. /recipe/get_recipe and /shoppingList/sort_ingredients should be GET instead of POST
-   - Updated
+  - Updated POST to PUT
+- Update quantity of ingredient ingredients/{ingredient_id} should be PUT instead of POST
+   - Updated POST to PUT
+- Removing Ingredient by Recipe /ingredients/recipe_remove should be DELETE instead of POST
+   - Updated POST to DELETE
+- Query Recipes /recipes should be get instead of POST
+   - Changed endpoints, and now takes in a body so need to be a POST
+- Similiar endpoints like Add recipe to the catalog (PUT) and Sort shopping list /shoppingList/sort (POST) also need to be changed but are similar to 2-5.
+   - Updated both enedpoints
+-  /recipe/get_recipe and /shoppingList/sort_ingredients should be GET instead of POST
+   - Changed endpoints, and now takes in a body so need to be a POST
 1. I think adding an ingredient should be (POST) and updating should be (PUT)
    - Change
 1. change a /shoppingList/sort (POST) to a (GET)
