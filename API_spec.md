@@ -1,9 +1,72 @@
+## 1 User
+
+### 1.1 Create New User `/user/create_user` (POST)
+
+Create a new user with a unique user id and name
+
+**Request**
+```json
+{
+    "name": "string"
+}
+```
+
+**Request**
+```json
+{
+    "user_id": "integer"
+}
+```
+
+### 1.2 Get User `/user/get_user/{userid}` (GET)
+
+Get an existing user name based on an input user_id
+
+**Request**
+```json
+{
+    "user_id": "integer"
+}
+```
+
+**Request**
+```json
+{
+    "name": "string"
+}
+```
+
+## 2 Shopping List
+
+### 2.1 Add Ingredients `/add_ingredients` (POST)
+
+Add ingredients to the fridge
+
+**Request**
+
+```json
+{
+    "ingredients_needed":
+        [{
+            ingredient_id: integer
+            quantity: integer  
+        }]
+    "user_id" : integer
+}
+```
+
+**Request**
+```
+    "OK"
+```
+
+
+
 ## 1 Recipes
 
 ### 1.1 Query Recipes `/recipes` (POST)
 
-``
-Findings a matching recipe according to user specifications
+
 
 **Request**
 
