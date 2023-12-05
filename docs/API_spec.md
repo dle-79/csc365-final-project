@@ -40,7 +40,7 @@ Get an existing user name based on an input user_id
 
 ### 2.1 Add Ingredients `/add_ingredients` (POST)
 
-Add ingredients to the fridge
+Add ingredients to shopping list
 
 **Request**
 
@@ -49,20 +49,20 @@ Add ingredients to the fridge
     "ingredients_needed":
         [{
             ingredient_id: integer
-            quantity: integer  
+            quantity: float
         }]
     "user_id" : integer
 }
 ```
 
-**Request**
+**Returns**
 ```
 "OK"
 ```
 
 ### 2.2 Delete Ingredients `/remove_ingredients` (POST)
 
-Delete ingredients from the fridge
+Delete ingredients from the shopping list
 
 **Request**
 
@@ -71,36 +71,36 @@ Delete ingredients from the fridge
     "ingredients_needed":
         [{
             "ingredient_id": integer
-            "quantity": integer  
+            "quantity": float  
         }]
     "user_id" : integer
 }
 ```
 
-**Request**
+**Returns**
 ```
 "OK"
 ```
 
 ### 2.3 Sort Ingredients `/sort_ingredients` (GET)
 
-Delete ingredients from the fridge
+Delete ingredients from the shopping list
 
 **Request**
 
 ```json
 {
     "user_id": integer
-    "parameter" : string
+    "parameter" : string /* must be aisle, amount, or name */
 }
 ```
 
-**Request**
+**Return**
 ```
 [
     Ingredient: {
         "ingredient_id" : integer
-        "quantity" : integer
+        "quantity" : float
     }
 ]
 ```
@@ -116,28 +116,36 @@ Get the macros given input value
 {
     "recipe_constraints":
     {
-        min_protein: int = 0
+        min_protein: int = 0  /* all macros in grams */
         max_protein: int = 10000000
-        min_calories: int = 0
+        min_calories: int = 0 /* in kcal */
         max_calories: int = 100000
         vegan: bool = False
         vegetarian: bool = False
         paleo: bool = False
         min_carbs: int = 0
         max_carbs: int = 1000000
-        max_time_to_make : int = 10000
-        country_origin: str = "United States"
-        meal_type: str = "Dinner"
+        max_time_to_make : int = 10000 /* time in minutes */
+        country_origin: str = "United States" /* see country options below */
+        meal_type: str = "Dinner" /* see meal_type options below */
     }
 }
 ```
 
-**Request**
+Possible countries: Anguilla, Antigua and Barbuda, Australia, Bahamas, Barbados, Belgius, Belize, Brazil, Cambodia, Caribbean, Cayman Islands, China, Cuba, Dominican Republic, East Africa, Eritrea, Ethiopia, France, Germany, Ghana, Greece, Grabada, Guyana, Hawaii, India, International, Italy, Jamaica, Japan, Kenya, Lebanon, Malaysia, Mediterranean, Mexico, Middle East, Morocco, Mozambique, Nigeria, Peru, Philippines, Portugal, Puerto Rico, Russia, Senegal, South Africa, South Korea, Spain, St. Kitts and Nevis, St. Lucia, St. Vincent and the Grendaines, Taiwan, Thailand, Trinidad and Tobago, Uganda, Ukraine, United Kingdom, United States, Various, Vietnam
+
+Possible meal types: Breakfast, Cheese, Condiment, Dessert, Dinner, Drink, Lunch, Main Course, Main Dish, Salad, Sandwich, Sauce, Side Dish, Snack, Soup
+
+**Return**
 ```
 [
     final_recipes: {
         "recipe_id": integer
-        "ingredients": [string]
+        "ingredients": {
+                "ingredient": name
+                "quantity": float
+                "units": string
+                }
         "name": string
         "steps": integer
     }
@@ -146,7 +154,7 @@ Get the macros given input value
 
 ### 3.2 Get Recipe based on Name `/get_recipe_name` (GET)
 
-Get recipes based on name
+Get recipes that start with string entered
 
 **Request**
 
@@ -156,12 +164,16 @@ Get recipes based on name
 }
 ```
 
-**Request**
+**Return**
 ```
 [
     final_recipes: {
         "recipe_id": integer
-        "ingredients": [string]
+        "ingredients": {
+                "ingredient": name
+                "quantity": float
+                "units": string
+                }
         "name": string
         "steps": integer
     }
@@ -170,7 +182,7 @@ Get recipes based on name
 
 ### 3.3 Check the recipes for given values `/check_recipe_ingredient` (POST)
 
-Check recipes
+Check recipes if you have all ingredients in fridge
 
 **Request**
 
@@ -182,36 +194,11 @@ Check recipes
 }
 ```
 
-**Request**
+**Return**
 ```
 {
     boolean
 }
-```
-
-### 3.4 Get recipe ingredients `/get_recipe_ingredient` (POST)
-
-Get recipe indgredients
-
-**Request**
-
-```json
-{
-    "user_id": integer
-    "servings": integer
-}
-```
-
-**Request**
-```
-[
-    final_recipes: {
-        "recipe_id": integer
-        "ingredients": [string]
-        "name": string
-        "steps": integer
-    }
-]
 ```
 
 ## 4 Fridge
@@ -219,7 +206,7 @@ Get recipe indgredients
 
 Get a catalog of all the ingredients
 
-**Request**
+**Return**
 ```
 {
     "ingredient_id" (integer) : "ingredient_name" (string)
@@ -237,12 +224,12 @@ Add indgredients
     user_id: integer
     fridge_request: {
         ingredient_id : integer
-        quantity : integer
+        quantity : float
     }
 }
 ```
 
-**Request**
+**Return**
 ```
 "string"
 ```
@@ -260,7 +247,7 @@ Remove recipe ingredients for a specific recipe
 }
 ```
 
-**Request**
+**Return**
 ```
 "string"
 ```
@@ -279,7 +266,7 @@ Remove ingredients
 }
 ```
 
-**Request**
+**Return**
 ```
 "string"
 ```
@@ -296,7 +283,7 @@ Get fridge ingredients
 }
 ```
 
-**Request**
+**Return**
 ```json
 [
     {
