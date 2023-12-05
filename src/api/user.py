@@ -26,7 +26,7 @@ def create_user(new_user : NewUser):
     return {"user_id": user_id}
 
 @router.get("/{userid}")
-def get_user(user_id: int):
+def get_user_id(user_id: int):
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
         """
@@ -39,4 +39,20 @@ def get_user(user_id: int):
     return [{
         "user_id" : user_id,
         "name" : result.name
+    }]
+
+@router.get("/{username}")
+def get_username(username: str):
+    with db.engine.begin() as connection:
+        result = connection.execute(sqlalchemy.text(
+        """
+        SELECT user_id
+        FROM users
+        WHERE name = :username;
+        """
+        ),
+        [{"user_id" : username}]).scalar_one()
+    return [{
+        "user_id" : result,
+        "name" : username
     }]

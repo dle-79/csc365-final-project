@@ -85,7 +85,7 @@ def remove_recipe_ingredients(recipe_id: int, user_id: int):
     return "OK"
 
 @router.delete("/remove_ingredient")
-def remove_fridge_ingredients(ingredient_id: int, quantity: int, user_id: int):
+def remove_fridge_ingredients(ingredient_id: int, user_id: int):
     with db.engine.begin() as connection:
         connection.execute(sqlalchemy.text(
             """

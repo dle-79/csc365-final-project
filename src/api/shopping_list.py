@@ -81,8 +81,11 @@ def remove_shopList(ingredients_needed: list[Ingredient], user_id: int):
 
 @router.get("/sort_ingredients")
 #input: a list of the ingredients needed and the quantity needed to make the recipe
-def sort_shopList(user_id: int):
+def sort_shopList(user_id: int, parameter: str):
         # checking if there's already ingredients in fridge
+    if parameter != "aisle" or parameter != "name" or parameter != "quantity":
+        return("Error: Invalid parameter type")
+    
     with db.engine.begin() as connection:
         ingredients = connection.execute(sqlalchemy.text("""
             SELECT name, aisle, shopping_list.quantity AS amount, quantity AS unit
@@ -90,9 +93,10 @@ def sort_shopList(user_id: int):
             JOIN shopping_list 
             ON ingredient.id = shopping_list.ingredient_id
             WHERE :user_id = fridge.user_id
-            ORDER BY aisle
+            ORDER BY :parameter
             """),
-            [{"user_id": user_id}]).all()
+            [{"user_id": user_id,
+            "parameter": parameter}]).all()
  
     ingredient_list = []
 
@@ -104,7 +108,7 @@ def sort_shopList(user_id: int):
         })
     
     if len(ingredient_list) == 0:
-        return []
+        return("No ingredients on shop list")
     return ingredient_list
 
 
