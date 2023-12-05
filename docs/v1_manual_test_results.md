@@ -1,14 +1,15 @@
 # Example workflow
 Theresa wants to try a paleo diet, but doesn’t know what to make. She first adds all the ingredients she has at home to her virtual pantry. She then restricts the recipes she can give to be paleo friendly. She then receives a recipe and starts to use the ingredients. When Theresa makes it, she removes the ingredients used from her virtual pantry.
 
-- Theresa starts by calling POST /fridge/add_to_fridge_fridge_add_ingredients_post to add all the ingredients in her virtual fridge.
-- then Theresa calls POST /recipes with her paleo diet restrictions.
+- Theresa starts by creating a new user by calling /user/create_user
+- Theresa starts by calling POST /fridge/add_ingredients to add all the ingredients she has to her virtual fridge.
+- then Theresa calls POST /recipe/get_recipe_macros with her paleo diet restrictions.
 - She then calls POST /fridge/remove_fridge_ingredients_fridge_remove_repice_ingredients_post in order to remove the recipes from her virtual fridge.
 
 # Testing results
 1. Theresa user is created 
 curl -X 'POST' \
-  'http://127.0.0.1:8000/user/' \
+  'https://recipe-guide.onrender.com/user/create_user' \
   -H 'accept: application/json' \
   -H 'access_token: recipe' \
   -H 'Content-Type: application/json' \
@@ -16,35 +17,44 @@ curl -X 'POST' \
   "name": "Theresa"
 }'
 
-2. "string"
+2. Return:
+   {
+     user_id : 14
+   }
 
-3. Adds all her ingredents to her virtual fridge
+4. Adds all her ingredents to her virtual fridge
 curl -X 'POST' \
-  'http://127.0.0.1:8000/fridge/add_ingredients?ingredient_id=25' \
+  'https://recipe-guide.onrender.com/fridge/add_ingredients?ingredient_id=25' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
-  "user_id": 2,
+  "user_id": 14,
   "quantity": 3
 }'
 
+Return: "Added ingredient"
+
 curl -X 'POST' \
-  'http://127.0.0.1:8000/fridge/add_ingredients?ingredient_id=11' \
+  'https://recipe-guide.onrender.com/fridge/add_ingredients?ingredient_id=11' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
-  "user_id": 2,
+  "user_id": 14,
   "quantity": 3
 }'
 
+Return: "Added ingredient"
+
 curl -X 'POST' \
-  'http://127.0.0.1:8000/fridge/add_ingredients?ingredient_id=12' \
+  'https://recipe-guide.onrender.com/fridge/add_ingredients?ingredient_id=12' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
-  "user_id": 2,
+  "user_id": 14,
   "quantity": 5
 }'
+
+Return: "Added ingredient"
 
 4. Restrict for paleo and get a recipe back
 curl -X 'POST' \
@@ -62,7 +72,7 @@ curl -X 'POST' \
   "time_to_make": 0
 }'
 
-5. Get the correct repice back
+Response:
 [
   {
     "recipe_id": 4,
@@ -72,11 +82,12 @@ curl -X 'POST' \
   }
 ]
 
-6. Remove the ingredients used
+5. Check to make sure we have the correct ingredients
 curl -X 'POST' \
-  'http://127.0.0.1:8000/fridge/remove_repice_ingredients?recipe_id=4&user_id=2' \
+  'https://recipe-guide.onrender.com/recipe/check_recipe_ingredient?user_id=14&recipe_id=4&servings=1' \
   -H 'accept: application/json' \
   -d ''
 
-7. "OK"
+Response:
+"true"
 
