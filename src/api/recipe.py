@@ -90,7 +90,7 @@ def get_recipes_by_name(recipe_name: str):
     with db.engine.begin() as connection:
         recipes = connection.execute(sqlalchemy.text(
         """
-        SELECT recipe_id, name, steps
+        SELECT recipe_id, name, steps, description
         FROM recipe
         WHERE name LIKE ":name%"
         LIMIT 10
@@ -115,6 +115,7 @@ def get_recipes_by_name(recipe_name: str):
 
             final_recipes.append({
                 "recipe_id": recipe_id.recipe_id,
+                "description": recipe_id.description,
                 "ingredients": ingredient_list,
                 "name": recipe_id.name,
                 "steps": recipe_id.steps}
