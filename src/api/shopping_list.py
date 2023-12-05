@@ -20,8 +20,8 @@ def add_to_shopList(ingredients_needed: list[Ingredient], user_id: int):
     for ingredient in ingredients_needed:
         with db.engine.begin() as connection:
             connection.execute(sqlalchemy.text("""
-            INSERT INTO shopping_list (user_id, ingredient_id, quantity, purchase)
-            VALUES (:user_id, :ingredient, :amount_needed, False)
+            INSERT INTO shopping_list (user_id, ingredient_id, quantity)
+            VALUES (:user_id, :ingredient, :amount_needed)
             """),
             [{"user_id": user_id,
             "ingredient": ingredient.ingredient_id,
@@ -79,9 +79,7 @@ def remove_shopList(ingredients_needed: list[Ingredient], user_id: int):
     return "OK"
 
 @router.get("/sort_ingredients")
-#input: a list of the ingredients needed and the quantity needed to make the recipe
 def sort_shopList(user_id: int, parameter: str):
-        # checking if there's already ingredients in fridge
     if parameter != "aisle" and parameter != "name" and parameter != "amount":
         return("Error: Invalid parameter type")
     
