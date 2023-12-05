@@ -16,67 +16,82 @@ class Ingredient(BaseModel):
 
 @router.post("/add_ingredients")
 #input: a list of the ingredients needed and the quantity needed to make the recipe
-def add_to_shopList(ingredients_needed: list[Ingredient], user_id: int):
-    for ingredient in ingredients_needed:
-        with db.engine.begin() as connection:
-            connection.execute(sqlalchemy.text("""
-            INSERT INTO shopping_list (user_id, ingredient_id, quantity)
-            VALUES (:user_id, :ingredient, :amount_needed)
-            """),
-            [{"user_id": user_id,
-            "ingredient": ingredient.ingredient_id,
-            "amount_needed": ingredient.quantity}])
-        # checking if there's already ingredients in fridge
-        # with db.engine.begin() as connection:
-        #     result = connection.execute(sqlalchemy.text("""
-        #     SELECT quantity
-        #     FROM fridge
-        #     WHERE ingredient_id = :ingredient
-        #     AND :user_id = fridge.user_id;
-        #     """),
-        #     [{"ingredient": ingredient.id,
-        #     "user_id": user_id}]).first()
-        #     quant = result.quantity
+def add_to_shopList(ingredient_needed: Ingredient, user_id: int):
+    if user_id is None:
+        return "No user_id"
+    if ingredient_needed.quantity is None:
+        return "No quantity"
+    if ingredient_needed.ingredient_id is None:
+        return "No ingredient ID"
+    if ingredient_needed.ingredient_id < 1 or ingredient_needed.ingredient_id > 1662:
+        return "invalid ingredient id"
+    if ingredient_needed.quantity < 0:
+        return "invalid ingredient quantity"
+    
 
-        # if quant is None:
-        #     quant = 0
-
-        # if quant >= ingredient.quantity:
-        #     continue
-        # else:
-    return "OK"
+    with db.engine.begin() as connection:
+        result = connection.execute(sqlalchemy.text(
+            """
+            SELECT quantity 
+            FROM shopping_list
+            WHERE user_id = :user_id AND ingredient_id = :ingredient_id; 
+            """
+        ), [{"user_id" : user_id, "ingredient_id" : ingredient_needed.ingredient_id}]).scalar()
+        
+        # Add to fridge
+        if result is None:
+            connection.execute(sqlalchemy.text(
+                """
+                INSERT INTO fridge (user_id, ingredient_id, quantity)
+                VALUES (:user_id, :ingredient_id, :quantity);
+                """
+            ), [{"user_id" : user_id, "ingredient_id" : ingredient_needed.ingredient_id, "quantity" : ingredient_needed.quantity}])
+            return "Added ingredient"
+        # Update quantity
+        else: 
+            connection.execute(sqlalchemy.text(
+                """
+                UPDATE fridge
+                SET quantity = quantity + :quantity
+                WHERE user_id = :user_id AND ingredient_id = :ingredient_id; 
+                """
+            ), [{"user_id" :  user_id, "ingredient_id" : ingredient_needed.ingredient_id, "quantity" : ingredient_needed.quantity}])
+            return "Updated ingredient"
 
 @router.delete("/remove_ingredients")
-#input: a list of the ingredients removed and the quantity needed to make the recipe
-def remove_shopList(ingredients_needed: list[Ingredient], user_id: int):
-    for ingredient in range(len(ingredients_needed)):
-        # checking if there's isn't ingredients in fridge
-        with db.engine.begin() as connection:
-            result = connection.execute(sqlalchemy.text("""
+def remove_shopList(ingredients_needed: Ingredient, user_id: int):
+    with db.engine.begin() as connection:
+        current_quantity = connection.execute(sqlalchemy.text(
+            """
             SELECT quantity
             FROM fridge
-            WHERE ingredient_id = :ingredient
-            AND :user_id = fridge.user_id
-            """),
-            [{"ingredient": ingredient.ingredient_id,
-            "user_id": user_id}]).scalar_one()
-            quant = result.quantity
+            WHERE ingredient_id = :ingredient_id AND user_id = :user_id;
+            """
+            ), [{"ingredient_id" : ingredients_needed.ingredient_id, "user_id": user_id}]).scalar()
+    
 
-        if quant is None:
-            quant = 0
+        if current_quantity is None:
+            return "No ingredient to delete"
 
-        if quant < ingredient.quantity:
-            continue
+        if current_quantity - ingredients_needed.quantity <= 0:
+            connection.execute(sqlalchemy.text(
+                """
+                DELETE FROM fridge
+                WHERE ingredient_id = :ingredient_id AND user_id = :user_id;
+                """
+                ), [{"ingredient_id" : ingredients_needed.ingredient_id, "user_id": user_id}])
+            return "Ingredient removed"
         else:
-            with db.engine.begin() as connection:
-                connection.execute(sqlalchemy.text("""
-                DELETE FROM shopping_list
-                WHERE user_id = :user_id
-                AND ingredient_id = :ingredient
+            connection.execute(sqlalchemy.text(
+                """
+                UPDATE fridge
+                SET quantity = quantity - :quantity
+                WHERE ingredient_id = :ingredient_id AND user_id = :user_id;
                 """),
-                [{"user_id": user_id,
-                "ingredient": ingredient.ingredient_id}]).scalar_one()
-    return "OK"
+                [{"ingredient_id" : ingredients_needed.ingredient_id, "user_id": user_id, "quantity": ingredients_needed.quantity}])
+            return "Ingredient updated"
+        
+
 
 @router.get("/sort_ingredients")
 def sort_shopList(user_id: int, parameter: str):
@@ -129,6 +144,29 @@ def sort_shopList(user_id: int, parameter: str):
         return("No ingredients on shop list")
     return ingredient_list
 
+@router.put("/add_recipe_ingredients")
+def add_recipe_ingredients_to_shop_list(recipe_id: int, user_id: int):
+    if recipe_id is None:
+        return "No recipe ID"
+    if user_id is None:
+        return "No user ID"
+    if recipe_id < 1 or recipe_id > 2031:
+        return "invalid recipe_id"
+
+    with db.engine.begin() as connection:
+        ingredients = connection.execute(sqlalchemy.text(
+            """
+            SELECT quantity, ingredient_id
+            FROM recipe_ingredients
+            WHERE recipe_id = :recipe_id
+            """
+        ), [{"recipe_id" : recipe_id}]).all()
+        
+        if ingredients == []:
+            return "No ingredients found"
+        for ingredient in ingredients:
+            add_to_shopList(ingredient.ingredient_id, user_id, ingredient.quantity)
+    return "OK"
 
 
 

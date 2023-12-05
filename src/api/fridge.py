@@ -125,6 +125,7 @@ def remove_ingredients_from_fridge(fridge_request: FridgeRequest, user_id: int):
                 WHERE ingredient_id = :ingredient_id AND user_id = :user_id;
                 """
                 ), [{"ingredient_id" : fridge_request.ingredient_id, "user_id": user_id}])
+            return "ingredient removed from fridge"
         else:
             connection.execute(sqlalchemy.text(
                 """
@@ -133,8 +134,7 @@ def remove_ingredients_from_fridge(fridge_request: FridgeRequest, user_id: int):
                 WHERE ingredient_id = :ingredient_id AND user_id = :user_id;
                 """),
                 [{"ingredient_id" : fridge_request.ingredient_id, "user_id": user_id, "quantity": fridge_request.quantity}])
-        
-    return "OK"
+            return "ingredient updated"
 
 @router.get("/get_fridge_ingredients")
 def get_fridge_ingredients(user_id: int):
