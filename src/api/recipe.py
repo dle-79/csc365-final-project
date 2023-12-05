@@ -139,7 +139,7 @@ def check_recipe_ingredients(user_id: int, recipe_id: int, servings: int):
                 FROM fridge
                 WHERE user_id = :user_id
                 )
-            SELECT recipe_ingredients.ingredient_id, fridgeIngred.fridge_quant AS fridge_quant, quantity AS recipe_quant, ingredient.name
+            SELECT recipe_ingredients.ingredient_id, fridgeIngred.fridge_quant AS fridge_quant, quantity AS recipe_quant, ingredient.name, ingredient.units
             FROM recipe_ingredients
             LEFT JOIN fridgeIngred
             ON recipe_ingredients.ingredient_id = fridgeIngred.ingredient_id
@@ -166,6 +166,7 @@ def check_recipe_ingredients(user_id: int, recipe_id: int, servings: int):
 
         good_ingredients = 0
         serving_ratio = servings/serving_size
+        missing_ingredients = []
 
         for ingredient in ingredients:
             fridge_amount = ingredient.fridge_quant
@@ -173,6 +174,12 @@ def check_recipe_ingredients(user_id: int, recipe_id: int, servings: int):
                 fridge_amount = 0
             if fridge_amount >= ingredient.recipe_quant*serving_ratio:
                 good_ingredients += 1
+            else:
+                missing_ingredients.append({
+                    "name": ingredient.name,
+                    "quantity_needed": ingredient.recipe_quant*serving_ratio - fridge_amount,
+                    "units": ingredient.units
+                })
                 
 
         if good_ingredients == num_ingredients:
