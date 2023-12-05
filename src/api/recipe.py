@@ -183,6 +183,6 @@ def check_recipe_ingredients(user_id: int, recipe_id: int, servings: int):
                 
 
         if good_ingredients == num_ingredients:
-            return(True)
+            return "you have the ingredients!"
         else: 
-            return(False)
+            return missing_ingredients
