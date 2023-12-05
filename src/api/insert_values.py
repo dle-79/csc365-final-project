@@ -91,7 +91,7 @@ for i in range(1, 13001):
     while len(fridge_items) < num_fridge:
         ingredient = randint(1, 13000)
         if ingredient not in fridge_items:
-            user_ids.append(ingredient)
+            fridge_items.append(ingredient)
     for h in range(len(fridge_items)):
         quant = randint(0, 20)
     with db.engine.begin() as connection:
