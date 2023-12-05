@@ -1,4 +1,6 @@
+import random
 import sqlalchemy
+import string
 from src import database as db
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
@@ -22,24 +24,27 @@ def create_user(new_user : NewUser):
             VALUES (:name)
             RETURNING user_id
             """),
-            [{"name" : new_user.name}]).first().user_id
+            [{"name" : new_user.name}]).scalar()
     return {"user_id": user_id}
+
 
 @router.get("/{userid}")
 def get_user_id(user_id: int):
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text(
+        name = connection.execute(sqlalchemy.text(
         """
         SELECT name
         FROM users
         WHERE user_id = :user_id;
         """
         ),
-        [{"user_id" : user_id}]).first()
-    return [{
-        "user_id" : user_id,
-        "name" : result.name
-    }]
+        [{"user_id" : user_id}]).scalar()
+
+    if name is None:
+        return "No user with that id"
+    
+    return [{"user_id" : user_id, "name" : name}]
+
 
 @router.get("/{username}")
 def get_username(username: str):

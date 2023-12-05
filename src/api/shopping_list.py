@@ -60,7 +60,7 @@ def remove_shopList(ingredients_needed: list[Ingredient], user_id: int):
             AND :user_id = fridge.user_id
             """),
             [{"ingredient": ingredient.ingredient_id,
-            "user_id": user_id}]).first()
+            "user_id": user_id}]).scalar_one()
             quant = result.quantity
 
         if quant is None:
@@ -76,7 +76,7 @@ def remove_shopList(ingredients_needed: list[Ingredient], user_id: int):
                 AND ingredient_id = :ingredient
                 """),
                 [{"user_id": user_id,
-                "ingredient": ingredient.ingredient_id}]).first()
+                "ingredient": ingredient.ingredient_id}]).scalar_one()
     return "OK"
 
 @router.get("/sort_ingredients")
