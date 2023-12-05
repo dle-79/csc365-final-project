@@ -23,7 +23,7 @@ class RecipeMarcosObject(BaseModel):
     country_origin: str = "United States"
     meal_type: str = "Dinner"
 
-@router.get("/get_recipe_macros")
+@router.post("/get_recipe_macros")
 def get_recipes_parameter(recipe_constraints : RecipeMarcosObject):
     final_recipes = []
     with db.engine.begin() as connection:
@@ -179,5 +179,3 @@ def check_recipe_ingredients(user_id: int, recipe_id: int, servings: int):
             return(True)
         else: 
             return(False)
-
-
