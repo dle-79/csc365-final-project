@@ -57,194 +57,258 @@ Add ingredients to the fridge
 
 **Request**
 ```
-    "OK"
+"OK"
 ```
 
+### 2.2 Delete Ingredients `/remove_ingredients` (POST)
 
-
-## 1 Recipes
-
-### 1.1 Query Recipes `/recipes` (POST)
-
-
+Delete ingredients from the fridge
 
 **Request**
 
-```ts
+```json
 {
-    "macros"?: {
-        "calories"?: {"min": "number", "max": "number"},
-        "carbs"?: {"min": "number", "max": "number"},
-        "fat"?: {"min": "number", "max": "number"},
-        "protein"?: {"min": "number", "max": "number"}
-    },
-    "dietaryRestrictions"?: "string"[],
-    "culturalOrigin"?: "string",
-    "maxCost"?: "number",
-    "userID": "string",
-    "numServings"?: "number",
-    "allowIngredientsNotInPantry": "boolean"
+    "ingredients_needed":
+        [{
+            "ingredient_id": integer
+            "quantity": integer  
+        }]
+    "user_id" : integer
 }
 ```
 
-**Returns**
-
-```ts
-    "recipes": {"recipeID": "string", "ingredientsMultiplier": "float"}
-    "success": "boolean",
-    "error"?: "string"
+**Request**
+```
+"OK"
 ```
 
-### 1.2 Get Recipe `catalog/{recipe_id}` (GET)
+### 2.3 Sort Ingredients `/sort_ingredients` (GET)
 
-**Returns**
+Delete ingredients from the fridge
+
+**Request**
 
 ```json
+{
+    "user_id": integer
+    "parameter" : string
+}
+```
+
+**Request**
+```
 [
-  {
-    "sku": "string",
-    "name": "string",
-    "Protein": "integer",
-    "Calories": "integer",
-    "ingredients":
-        {
-        "ingredient_id": "number",
-        "ingredient_name": "string",
-        "amount":
-        {
-            "quantity": "number",
-            "aunit": "string"
-        }
-    }[],
-    "vegan": "boolean",
-    "paleo": "boolean",
-    "meal_type": "string",
-    "macros": "string",
-    "steps": "string"[]
-  }
+    Ingredient: {
+        "ingredient_id" : integer
+        "quantity" : integer
+    }
 ]
 ```
 
-### 1.3 Add recipe to the catalog `/recipes` (PUT)
+## 3 Recipe
+### 3.1 Get Recipe Macros `/get_recipe_macros` (GET)
 
-**Request**
-
-```ts
-{
-  "name": “string”,
-  "macros": [“macro1”, “macro2”, …],
-  "quantity": “integer”
-}
-```
-
-**Returns**
-
-```ts
-{
-"success": “boolean”
-}
-```
-
-## 2 Virtual Fridge
-
-### 2.1 Adding Ingredient `/fridge/add_ingredients/{ingredient_id}` (POST)
-## Complex Endpoint #1
+Get the macros given input value
 
 **Request**
 
 ```json
 {
-    "user_id": 0,
-    "quantity": 0
+    "recipe_constraints":
+    {
+        min_protein: int = 0
+        max_protein: int = 10000000
+        min_calories: int = 0
+        max_calories: int = 100000
+        vegan: bool = False
+        vegetarian: bool = False
+        paleo: bool = False
+        min_carbs: int = 0
+        max_carbs: int = 1000000
+        max_time_to_make : int = 10000
+        country_origin: str = "United States"
+        meal_type: str = "Dinner"
+    }
 }
 ```
 
-**Returns**
-
-```json
-{
-  "success": "boolean"
-}
+**Request**
+```
+[
+    final_recipes: {
+        "recipe_id": integer
+        "ingredients": [string]
+        "name": string
+        "steps": integer
+    }
+]
 ```
 
-# Complex Endpoint #2
-### 2.2 Removing Ingredient by Recipe `/fridge/remove_recipe/ingredients/{recipe_id, user_id}` (POST)
+### 3.2 Get Recipe based on Name `/get_recipe_name` (GET)
 
-Removes all the ingredients from the fridge that are in the recipe being made
-
-**Returns**
-
-```json
-{ "success": "boolean" }
-```
-
-### 2.3 Remove ingredients from the frigde '/fridge/remove_ingredient/{ingredient_id, user_id}' (DELETE)
-
-**Returns**
-
-```json
-{
-  "success": "boolean"
-}
-```
-
-### 2.4 Get ingredients from a fridge '/fridge/get_ingredients/{user_id}'
-**Returns**
-
-```json
-{
-  "success": "boolean"
-}
-```
-
-## 3 Shopping List
-
-### 3.1 Add add ingredients to shopping list `/shoppingList` (POST)
-
-Adds the needed ingredients that the user doesn't have in their fridge to a shopping list
+Get recipes based on name
 
 **Request**
 
 ```json
 {
-  "user_id": "string",
-  "ingredient_id": "string"
+   "recipe_name" : string
 }
 ```
 
-**Returns**
-
-```json
-{
-  "success": "boolean"
-}
+**Request**
+```
+[
+    final_recipes: {
+        "recipe_id": integer
+        "ingredients": [string]
+        "name": string
+        "steps": integer
+    }
+]
 ```
 
-### 3.2 Sort shopping list `/shoppingList/sort` (POST)
+### 3.3 Check the recipes for given values `/check_recipe_ingredient` (POST)
 
-Sorts the users shopping list by what type each ingredient is, so they can buy it easy in the story
+Check recipes
 
 **Request**
 
 ```json
 {
-  "user_id": "string"
+    "user_id": integer
+    "recipe_id": integer
+    "servings": integer
 }
 ```
 
-**Returns**
+**Request**
+```
+{
+    boolean
+}
+```
+
+### 3.4 Get recipe ingredients `/get_recipe_ingredient` (POST)
+
+Get recipe indgredients
+
+**Request**
 
 ```json
 {
-  {
-    "ingredient": "string",
-    "amount": {
-        "quantity": "number",
-        "unit": "string"
-        }
-    }[]
+    "user_id": integer
+    "servings": integer
 }
 ```
+
+**Request**
+```
+[
+    final_recipes: {
+        "recipe_id": integer
+        "ingredients": [string]
+        "name": string
+        "steps": integer
+    }
+]
+```
+
+## 4 Fridge
+### 4.1 Get Ingredient Catalog `/get_ingredient_catalog` (GET)
+
+Get a catalog of all the ingredients
+
+**Request**
+```
+{
+    "ingredient_id" (integer) : "ingredient_name" (string)
+}
+```
+
+### 4.2 Add ingredients `/add_ingredients` (POST)
+
+Add indgredients
+
+**Request**
+
+```json
+{
+    user_id: integer
+    fridge_request: {
+        ingredient_id : integer
+        quantity : integer
+    }
+}
+```
+
+**Request**
+```
+"string"
+```
+
+### 4.3 Remove Recipe Ingredients `/remove_recipe_ingredients` (PUT)
+
+Remove recipe ingredients for a specific recipe
+
+**Request**
+
+```json
+{
+    recipe_id: integer
+    user_id: integer
+}
+```
+
+**Request**
+```
+"string"
+```
+
+### 4.4 Remove Ingredients `/remove_ingredient` (PUT)
+
+Remove ingredients
+
+**Request**
+
+```json
+{
+    "ingredient_id": integer
+    "user_id": integer
+    "quantity": integer
+}
+```
+
+**Request**
+```
+"string"
+```
+
+### 4.5 Get Fridge Ingredients `/get_fridge_ingredients` (GET)
+
+Get fridge ingredients
+
+**Request**
+
+```json
+{
+    "user_id" : integer
+}
+```
+
+**Request**
+```json
+[
+    {
+        "ingredient": string
+        "quantity": integer
+        "units": integer
+    }
+]
+```
+
+
+
 
 # Example Flows
 
