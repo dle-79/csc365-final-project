@@ -11,7 +11,7 @@ Create a new user with a unique user id and name
 }
 ```
 
-**Request**
+**Returns**
 ```json
 {
     "user_id": "integer"
@@ -29,12 +29,31 @@ Get an existing user name based on an input user_id
 }
 ```
 
-**Request**
+**Returns**
 ```json
 {
     "name": "string"
 }
 ```
+
+### 1.3 Get User `/user/get_user/{userid}` (GET)
+
+Get an existing user name based on an input user_id
+
+**Request**
+```json
+{
+    "username": "string"
+}
+```
+
+**Returns**
+```json
+{
+    "user_id": "integer"
+}
+```
+
 
 ## 2 Shopping List
 
