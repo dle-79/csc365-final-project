@@ -21,6 +21,18 @@ def add_review(review: Review):
     if review.rating != 1 and review.rating != 2 and review.rating != 3 and review.rating != 4 and review.rating != 5:
         return "insert valid rating, int from 1-5"
     with db.engine.begin() as connection:
+
+        check = connection.execute(sqlalchemy.text(
+            """
+            SELECT user_id 
+            FROM users
+            WHERE user_id = :user_id 
+            """
+        ), [{"user_id" : user_id}]).scalar()
+
+        if check is None:
+            return "no user_id found"
+
         connection.execute(sqlalchemy.text(
                 """
                 INSERT INTO review (user_id, recipe_id, rating, review_description)
@@ -83,6 +95,17 @@ def get_review_by_recipe(recipe_id: int):
 @router.get("/get_review_by_user")
 def get_review_by_user(user_id: int):
     with db.engine.begin() as connection:
+        check = connection.execute(sqlalchemy.text(
+            """
+            SELECT user_id 
+            FROM users
+            WHERE user_id = :user_id 
+            """
+        ), [{"user_id" : user_id}]).scalar()
+
+        if check is None:
+            return "user_id does not exist"
+
         reviews = connection.execute(sqlalchemy.text(
             """SELECT recipe_id, rating, review_description, review_date
             FROM review
@@ -107,6 +130,17 @@ def get_review_by_user(user_id: int):
 @router.get("/get_rating_by_user_and_recipe")
 def get_review_by_user(user_id: int, recipe_id: int):
     with db.engine.begin() as connection:
+        check = connection.execute(sqlalchemy.text(
+            """
+            SELECT user_id 
+            FROM users
+            WHERE user_id = :user_id 
+            """
+        ), [{"user_id" : user_id}]).scalar()
+
+        if check is None:
+            return "user_id does not exist"
+
         reviews = connection.execute(sqlalchemy.text(
             """SELECT rating, review_description, review_date
             FROM review
