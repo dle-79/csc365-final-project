@@ -156,13 +156,15 @@ def sort_shopList(user_id: int, parameter: str):
     return ingredient_list
 
 @router.put("/add_recipe_ingredients")
-def add_recipe_ingredients_to_shop_list(recipe_id: int, user_id: int):
+def add_recipe_ingredients_to_shop_list(recipe_id: int, user_id: int, servings: int):
     if recipe_id is None:
         return "No recipe ID"
     if user_id is None:
         return "No user ID"
     if recipe_id < 1 or recipe_id > 2031:
         return "invalid recipe_id"
+    if servings <= 0:
+        return "invalid serving size"
 
     with db.engine.begin() as connection:
         ingredients = connection.execute(sqlalchemy.text(
@@ -175,10 +177,17 @@ def add_recipe_ingredients_to_shop_list(recipe_id: int, user_id: int):
         
         if ingredients == []:
             return "No ingredients found"
+
+        serving_size = connection.execute(sqlalchemy.text(
+            """
+            SELECT servings
+            FROM recipe
+            WHERE recipe_id = :recipe"""
+        ), [{"recipe": recipe_id}]).scalar_one()
+
+        serving_ratio = servings/serving_size
+
         for ingredient in ingredients:
-            add_to_shopList(ingredient.ingredient_id, user_id, ingredient.quantity)
+            add_to_shopList(ingredient.ingredient_id, user_id, ingredient.quantity*serving_ratio)
     return "OK"
-
-
-
 

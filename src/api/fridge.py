@@ -31,6 +31,68 @@ class FridgeRequest(BaseModel):
     quantity : float
 
 
+def check_ingredients(user_id: int, recipe_id: int, servings: int):
+
+    with db.engine.begin() as connection:
+    #get recipe quant and fridge quant
+        ingredients = connection.execute(sqlalchemy.text(
+            """
+            WITH fridgeIngred AS(
+                SELECT ingredient_id, quantity AS fridge_quant
+                FROM fridge
+                WHERE user_id = :user_id
+                )
+            SELECT recipe_ingredients.ingredient_id, fridgeIngred.fridge_quant AS fridge_quant, quantity AS recipe_quant, ingredient.name, ingredient.units
+            FROM recipe_ingredients
+            LEFT JOIN fridgeIngred
+            ON recipe_ingredients.ingredient_id = fridgeIngred.ingredient_id
+            JOIN ingredient
+            ON ingredient.ingredient_id = recipe_ingredients.ingredient_id
+            WHERE recipe_id = :recipe
+            """
+            ), [{"recipe": recipe_id, "user_id": user_id}]).all()
+
+        num_ingredients = connection.execute(sqlalchemy.text(
+                """
+                SELECT COUNT(ingredient_id) AS num_ingredients
+                FROM recipe_ingredients
+                WHERE recipe_id = :recipe_id
+                """
+            ), [{"recipe_id": recipe_id}]).scalar_one()
+        
+        serving_size = connection.execute(sqlalchemy.text(
+            """
+            SELECT servings
+            FROM recipe
+            WHERE recipe_id = :recipe"""
+        ), [{"recipe": recipe_id}]).scalar_one()
+
+        good_ingredients = 0
+        serving_ratio = servings/serving_size
+        missing_ingredients = []
+
+        for ingredient in ingredients:
+            fridge_amount = ingredient.fridge_quant
+            if fridge_amount is None:
+                fridge_amount = 0
+            if fridge_amount >= ingredient.recipe_quant*serving_ratio:
+                good_ingredients += 1
+            else:
+                missing_ingredients.append({
+                    "id": ingredient.ingredient_id,
+                    "name": ingredient.name,
+                    "quantity_needed": ingredient.recipe_quant*serving_ratio - fridge_amount,
+                    "units": ingredient.units
+                })
+                
+
+        if good_ingredients == num_ingredients:
+            return True
+        else: 
+            return False
+
+
+
 # complex endpoint 
 @router.post("/add_ingredients")
 def add_to_fridge(user_id: int, fridge_request: FridgeRequest):
@@ -91,15 +153,29 @@ def add_to_fridge(user_id: int, fridge_request: FridgeRequest):
 
 # Secound Complex Endpoint
 @router.put("/remove_recipe_ingredients")
-def remove_recipe_ingredients_from_fridge(recipe_id: int, user_id: int):
+def remove_recipe_ingredients_from_fridge(recipe_id: int, user_id: int, servings: int):
     if recipe_id is None:
         return "No recipe ID"
     if user_id is None:
         return "No user ID"
     if recipe_id < 1 or recipe_id > 2031:
         return "invalid recipe_id"
+    if servings <= 0:
+        return "invalid serving size"
 
     with db.engine.begin() as connection:
+        with db.engine.begin() as connection:
+            check = connection.execute(sqlalchemy.text(
+                """
+                SELECT user_id 
+                FROM users
+                WHERE user_id = :user_id 
+                """
+            ), [{"user_id" : user_id}]).scalar()
+
+        if check is None:
+            return "no user_id found"
+
         ingredients = connection.execute(sqlalchemy.text(
             """
             SELECT quantity, ingredient_id
@@ -107,9 +183,23 @@ def remove_recipe_ingredients_from_fridge(recipe_id: int, user_id: int):
             WHERE recipe_id = :recipe_id
             """
         ), [{"recipe_id" : recipe_id}]).all()
+
         
         if ingredients == []:
             return "No ingredients found"
+
+        serving_size = connection.execute(sqlalchemy.text(
+            """
+            SELECT servings
+            FROM recipe
+            WHERE recipe_id = :recipe"""
+        ), [{"recipe": recipe_id}]).scalar_one()
+
+        serving_ratio = servings/serving_size
+
+        test = check_ingredients(user_id, recipe_id, ingredient.quantity*serving_ratio)
+        if test == False:
+            return "not all ingredients in fridge"
 
         for ingredient in ingredients:
             remove_ingredients_from_fridge(ingredient.ingredient_id, user_id, ingredient.quantity)
@@ -176,3 +266,7 @@ def get_fridge_ingredients(user_id: int):
 
         
     return ingredients_list
+
+
+
+
