@@ -39,7 +39,7 @@ def add_review(review: Review):
             FROM recipe
             WHERE recipe_id = :recipe_id 
             """
-        ), [{"user_id" : review.recipe_id}]).scalar()
+        ), [{"recipe_id" : review.recipe_id}]).scalar()
 
         if check2 is None:
             return "no recipe_id found"
@@ -65,7 +65,7 @@ def get_avg_rating_by_recipe(recipe_id: int):
             FROM recipe
             WHERE recipe_id = :recipe_id 
             """
-        ), [{"user_id" : recipe_id}]).scalar()
+        ), [{"recipe_id" : recipe_id}]).scalar()
 
         if check2 is None:
             return "no recipe_id found"
@@ -100,7 +100,7 @@ def get_review_by_recipe(recipe_id: int):
             FROM recipe
             WHERE recipe_id = :recipe_id 
             """
-        ), [{"user_id" : recipe_id}]).scalar()
+        ), [{"recipe_id" : recipe_id}]).scalar()
 
         if check2 is None:
             return "no recipe_id found"
@@ -183,7 +183,7 @@ def get_review_by_user(user_id: int, recipe_id: int):
             FROM recipe
             WHERE recipe_id = :recipe_id 
             """
-        ), [{"user_id" : recipe_id}]).scalar()
+        ), [{"recipe_id" : recipe_id}]).scalar()
 
         if check2 is None:
             return "no recipe_id found"
