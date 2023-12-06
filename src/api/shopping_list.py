@@ -3,7 +3,6 @@ from src import database as db
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from src.api import auth
-from fridge import add_to_fridge
 
 router = APIRouter(
     prefix="/shoppingList",
