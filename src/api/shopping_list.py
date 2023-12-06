@@ -64,7 +64,7 @@ def remove_shopList(ingredients_needed: Ingredient, user_id: int):
         current_quantity = connection.execute(sqlalchemy.text(
             """
             SELECT quantity
-            FROM fridge
+            FROM shopping_list
             WHERE ingredient_id = :ingredient_id AND user_id = :user_id;
             """
             ), [{"ingredient_id" : ingredients_needed.ingredient_id, "user_id": user_id}]).scalar()
@@ -76,7 +76,7 @@ def remove_shopList(ingredients_needed: Ingredient, user_id: int):
         if current_quantity - ingredients_needed.quantity <= 0:
             connection.execute(sqlalchemy.text(
                 """
-                DELETE FROM fridge
+                DELETE FROM shopping_list
                 WHERE ingredient_id = :ingredient_id AND user_id = :user_id;
                 """
                 ), [{"ingredient_id" : ingredients_needed.ingredient_id, "user_id": user_id}])
@@ -84,7 +84,7 @@ def remove_shopList(ingredients_needed: Ingredient, user_id: int):
         else:
             connection.execute(sqlalchemy.text(
                 """
-                UPDATE fridge
+                UPDATE shopping_list
                 SET quantity = quantity - :quantity
                 WHERE ingredient_id = :ingredient_id AND user_id = :user_id;
                 """),
