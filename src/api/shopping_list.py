@@ -3,6 +3,7 @@ from src import database as db
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from src.api import auth
+from fridge import add_to_fridge
 
 router = APIRouter(
     prefix="/shoppingList",
@@ -167,8 +168,6 @@ def add_recipe_ingredients_to_shop_list(recipe_id: int, user_id: int):
         for ingredient in ingredients:
             add_to_shopList(ingredient.ingredient_id, user_id, ingredient.quantity)
     return "OK"
-
-
 
 
 
