@@ -28,7 +28,7 @@ def add_review(review: Review):
             FROM users
             WHERE user_id = :user_id 
             """
-        ), [{"user_id" : user_id}]).scalar()
+        ), [{"user_id" : review.user_id}]).scalar()
 
         if check is None:
             return "no user_id found"
