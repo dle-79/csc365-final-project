@@ -55,7 +55,7 @@ def add_to_fridge(user_id: int, fridge_request: FridgeRequest):
             """
         ), [{"user_id" : user_id}]).first()
 
-        if check is None:
+        if check.user_id is None:
             return "no user_id found"
 
 
