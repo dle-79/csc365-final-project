@@ -66,6 +66,7 @@ Three slowest endpoints:
 2) /review/add_review 
 3) /review/get_rating_by_recipe
 
+******************************************************************************************************************************************************************
 Performance Tuning:
 
 Endpoint : EXPLAIN ANALYZE : Meaning : Add indexing : Result
