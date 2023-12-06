@@ -177,6 +177,7 @@ def check_recipe_ingredients(user_id: int, recipe_id: int, servings: int):
                 good_ingredients += 1
             else:
                 missing_ingredients.append({
+                    "id": ingredient.ingredient_id,
                     "name": ingredient.name,
                     "quantity_needed": ingredient.recipe_quant*serving_ratio - fridge_amount,
                     "units": ingredient.units
