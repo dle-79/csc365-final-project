@@ -47,6 +47,18 @@ def add_to_fridge(user_id: int, fridge_request: FridgeRequest):
     
 
     with db.engine.begin() as connection:
+        check = connection.execute(sqlalchemy.text(
+            """
+            SELECT user_id 
+            FROM users
+            WHERE user_id = :user_id 
+            """
+        ), [{"user_id" : user_id}]).scalar()
+
+        if check is None:
+            return "no user_id found"
+
+
         result = connection.execute(sqlalchemy.text(
             """
             SELECT quantity 
