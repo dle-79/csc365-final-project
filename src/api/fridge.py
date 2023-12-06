@@ -197,12 +197,12 @@ def remove_recipe_ingredients_from_fridge(recipe_id: int, user_id: int, servings
 
         serving_ratio = servings/serving_size
 
-        test = check_ingredients(user_id, recipe_id, ingredient.quantity*serving_ratio)
+        test = check_ingredients(user_id, recipe_id, servings)
         if test == False:
             return "not all ingredients in fridge"
 
         for ingredient in ingredients:
-            remove_ingredients_from_fridge(ingredient.ingredient_id, user_id, ingredient.quantity)
+            remove_ingredients_from_fridge(ingredient.ingredient_id, user_id, ingredient.quantity*serving_ratio)
     return "OK"
 
 @router.delete("/remove_ingredient")
