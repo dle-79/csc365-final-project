@@ -55,7 +55,7 @@ def add_to_fridge(user_id: int, fridge_request: FridgeRequest):
             """
         ), [{"user_id" : user_id}]).scalar()
 
-        if check.user_id is None:
+        if check is None:
             return "no user_id found"
 
 
