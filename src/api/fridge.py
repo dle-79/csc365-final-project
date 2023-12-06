@@ -53,7 +53,7 @@ def add_to_fridge(user_id: int, fridge_request: FridgeRequest):
             FROM users
             WHERE user_id = :user_id 
             """
-        ), [{"user_id" : user_id}]).scalar_one()
+        ), [{"user_id" : user_id}]).scalar()
 
         if check.user_id is None:
             return "no user_id found"
