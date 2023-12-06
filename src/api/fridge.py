@@ -104,7 +104,7 @@ def remove_recipe_ingredients_from_fridge(recipe_id: int, user_id: int):
     return "OK"
 
 @router.delete("/remove_ingredient")
-def remove_ingredients_from_fridge(fridge_request: FridgeRequest, user_id: int):
+def remove_ingredients_from_fridge(ingredient_id: int, user_id: int, quantity: int):
     with db.engine.begin() as connection:
         current_quantity = connection.execute(sqlalchemy.text(
             """
@@ -112,19 +112,19 @@ def remove_ingredients_from_fridge(fridge_request: FridgeRequest, user_id: int):
             FROM fridge
             WHERE ingredient_id = :ingredient_id AND user_id = :user_id;
             """
-            ), [{"ingredient_id" : fridge_request.ingredient_id, "user_id": user_id}]).scalar()
+            ), [{"ingredient_id" : ingredient_id, "user_id": user_id}]).scalar()
     
 
         if current_quantity is None:
             return "No ingredient to delete"
 
-        if current_quantity - fridge_request.quantity <= 0:
+        if current_quantity - quantity <= 0:
             connection.execute(sqlalchemy.text(
                 """
                 DELETE FROM fridge
                 WHERE ingredient_id = :ingredient_id AND user_id = :user_id;
                 """
-                ), [{"ingredient_id" : fridge_request.ingredient_id, "user_id": user_id}])
+                ), [{"ingredient_id" : ingredient_id, "user_id": user_id}])
             return "ingredient removed from fridge"
         else:
             connection.execute(sqlalchemy.text(
@@ -133,7 +133,7 @@ def remove_ingredients_from_fridge(fridge_request: FridgeRequest, user_id: int):
                 SET quantity = quantity - :quantity
                 WHERE ingredient_id = :ingredient_id AND user_id = :user_id;
                 """),
-                [{"ingredient_id" : fridge_request.ingredient_id, "user_id": user_id, "quantity": fridge_request.quantity}])
+                [{"ingredient_id" : ingredient_id, "user_id": user_id, "quantity": quantity}])
             return "ingredient updated"
 
 @router.get("/get_fridge_ingredients")

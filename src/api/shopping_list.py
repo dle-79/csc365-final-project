@@ -16,16 +16,16 @@ class Ingredient(BaseModel):
 
 @router.post("/add_ingredients")
 #input: a list of the ingredients needed and the quantity needed to make the recipe
-def add_to_shopList(ingredient_needed: Ingredient, user_id: int):
+def add_to_shopList(ingredient_id: int, user_id: int, quantity: int):
     if user_id is None:
         return "No user_id"
-    if ingredient_needed.quantity is None:
+    if quantity is None:
         return "No quantity"
-    if ingredient_needed.ingredient_id is None:
+    if ingredient_id is None:
         return "No ingredient ID"
-    if ingredient_needed.ingredient_id < 1 or ingredient_needed.ingredient_id > 1662:
+    if ingredient_id < 1 or ingredient_id > 1662:
         return "invalid ingredient id"
-    if ingredient_needed.quantity < 0:
+    if quantity < 0:
         return "invalid ingredient quantity"
     
 
@@ -36,26 +36,26 @@ def add_to_shopList(ingredient_needed: Ingredient, user_id: int):
             FROM shopping_list
             WHERE user_id = :user_id AND ingredient_id = :ingredient_id; 
             """
-        ), [{"user_id" : user_id, "ingredient_id" : ingredient_needed.ingredient_id}]).scalar()
+        ), [{"user_id" : user_id, "ingredient_id" : ingredient_id}]).scalar()
         
         # Add to fridge
         if result is None:
             connection.execute(sqlalchemy.text(
                 """
-                INSERT INTO fridge (user_id, ingredient_id, quantity)
+                INSERT INTO shopping_list (user_id, ingredient_id, quantity)
                 VALUES (:user_id, :ingredient_id, :quantity);
                 """
-            ), [{"user_id" : user_id, "ingredient_id" : ingredient_needed.ingredient_id, "quantity" : ingredient_needed.quantity}])
+            ), [{"user_id" : user_id, "ingredient_id" : ingredient_id, "quantity" : quantity}])
             return "Added ingredient"
         # Update quantity
         else: 
             connection.execute(sqlalchemy.text(
                 """
-                UPDATE fridge
+                UPDATE shopping_list
                 SET quantity = quantity + :quantity
                 WHERE user_id = :user_id AND ingredient_id = :ingredient_id; 
                 """
-            ), [{"user_id" :  user_id, "ingredient_id" : ingredient_needed.ingredient_id, "quantity" : ingredient_needed.quantity}])
+            ), [{"user_id" :  user_id, "ingredient_id" : ingredient_id, "quantity" : quantity}])
             return "Updated ingredient"
 
 @router.delete("/remove_ingredients")
