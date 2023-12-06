@@ -71,6 +71,8 @@ def add_to_shopList(ingredient_id: int, user_id: int, quantity: int):
 
 @router.delete("/remove_ingredients")
 def remove_shopList(ingredients_needed: Ingredient, user_id: int):
+    if ingredients_needed.quantity < 0:
+        return "input valid quantity"
     with db.engine.begin() as connection:
         current_quantity = connection.execute(sqlalchemy.text(
             """

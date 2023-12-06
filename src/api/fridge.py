@@ -69,7 +69,6 @@ def check_ingredients(user_id: int, recipe_id: int, servings: int):
 
         good_ingredients = 0
         serving_ratio = servings/serving_size
-        missing_ingredients = []
 
         for ingredient in ingredients:
             fridge_amount = ingredient.fridge_quant
@@ -95,8 +94,6 @@ def add_to_fridge(user_id: int, fridge_request: FridgeRequest):
         return "No quantity"
     if fridge_request.ingredient_id is None:
         return "No ingredient ID"
-    if fridge_request.ingredient_id < 1 or fridge_request.ingredient_id > 1662:
-        return "invalid ingredient id"
     if fridge_request.quantity < 0:
         return "invalid ingredient quantity"
     
@@ -151,14 +148,12 @@ def remove_recipe_ingredients_from_fridge(recipe_id: int, user_id: int, servings
         return "No recipe ID"
     if user_id is None:
         return "No user ID"
-    if recipe_id < 1 or recipe_id > 2031:
-        return "invalid recipe_id"
     if servings <= 0:
         return "invalid serving size"
 
     with db.engine.begin() as connection:
-        with db.engine.begin() as connection:
-            check = connection.execute(sqlalchemy.text(
+
+        check = connection.execute(sqlalchemy.text(
                 """
                 SELECT user_id 
                 FROM users
@@ -168,6 +163,17 @@ def remove_recipe_ingredients_from_fridge(recipe_id: int, user_id: int, servings
 
         if check is None:
             return "no user_id found"
+        
+        check2 = connection.execute(sqlalchemy.text(
+            """
+            SELECT recipe_id 
+            FROM recipe
+            WHERE recipe_id = :recipe_id 
+            """
+        ), [{"user_id" : recipe_id}]).scalar()
+
+        if check2 is None:
+            return "no recipe_id found"
 
         ingredients = connection.execute(sqlalchemy.text(
             """
@@ -200,6 +206,9 @@ def remove_recipe_ingredients_from_fridge(recipe_id: int, user_id: int, servings
 
 @router.delete("/remove_ingredient")
 def remove_ingredients_from_fridge(ingredient_id: int, user_id: int, quantity: int):
+    if quantity < 0:
+        return "input valid quantity"
+
     with db.engine.begin() as connection:
         current_quantity = connection.execute(sqlalchemy.text(
             """
@@ -234,6 +243,17 @@ def remove_ingredients_from_fridge(ingredient_id: int, user_id: int, quantity: i
 @router.get("/get_fridge_ingredients")
 def get_fridge_ingredients(user_id: int):
     with db.engine.begin() as connection:
+        check = connection.execute(sqlalchemy.text(
+            """
+            SELECT user_id 
+            FROM users
+            WHERE user_id = :user_id 
+            """
+        ), [{"user_id" : user_id}]).scalar()
+
+        if check is None:
+            return "no user_id found"
+
         ingredients = connection.execute(sqlalchemy.text(
             """
                 SELECT ingredient.name AS name, fridge.quantity AS quant, ingredient.units AS units

@@ -32,6 +32,17 @@ def add_review(review: Review):
 
         if check is None:
             return "no user_id found"
+        
+        check2 = connection.execute(sqlalchemy.text(
+            """
+            SELECT recipe_id 
+            FROM recipe
+            WHERE recipe_id = :recipe_id 
+            """
+        ), [{"user_id" : review.recipe_id}]).scalar()
+
+        if check2 is None:
+            return "no recipe_id found"
 
         connection.execute(sqlalchemy.text(
                 """
@@ -48,6 +59,17 @@ def add_review(review: Review):
 @router.get("/get_rating_by_recipe")
 def get_avg_rating_by_recipe(recipe_id: int):
     with db.engine.begin() as connection:
+        check2 = connection.execute(sqlalchemy.text(
+            """
+            SELECT recipe_id 
+            FROM recipe
+            WHERE recipe_id = :recipe_id 
+            """
+        ), [{"user_id" : recipe_id}]).scalar()
+
+        if check2 is None:
+            return "no recipe_id found"
+
         avg_rating = connection.execute(sqlalchemy.text(
             """SELECT ROUND(AVG(rating), 2)
             FROM review
@@ -72,6 +94,17 @@ def get_avg_rating_by_recipe(recipe_id: int):
 @router.get("/get_review_by_recipe")
 def get_review_by_recipe(recipe_id: int):
     with db.engine.begin() as connection:
+        check2 = connection.execute(sqlalchemy.text(
+            """
+            SELECT recipe_id 
+            FROM recipe
+            WHERE recipe_id = :recipe_id 
+            """
+        ), [{"user_id" : recipe_id}]).scalar()
+
+        if check2 is None:
+            return "no recipe_id found"
+
         reviews = connection.execute(sqlalchemy.text(
             """SELECT *
             FROM review
@@ -143,6 +176,17 @@ def get_review_by_user(user_id: int, recipe_id: int):
 
         if check is None:
             return "user_id does not exist"
+        
+        check2 = connection.execute(sqlalchemy.text(
+            """
+            SELECT recipe_id 
+            FROM recipe
+            WHERE recipe_id = :recipe_id 
+            """
+        ), [{"user_id" : recipe_id}]).scalar()
+
+        if check2 is None:
+            return "no recipe_id found"
 
         reviews = connection.execute(sqlalchemy.text(
             """SELECT rating, review_description, review_date, recipe.name AS nae
