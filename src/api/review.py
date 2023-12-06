@@ -107,8 +107,10 @@ def get_review_by_user(user_id: int):
             return "user_id does not exist"
 
         reviews = connection.execute(sqlalchemy.text(
-            """SELECT recipe_id, rating, review_description, review_date
+            """SELECT review.recipe_id, rating, review_description, review_date, recipe.name AS name
             FROM review
+            JOIN recipe
+            ON recipe.recipe_id = review.recipe_id
             WHERE user_id = :user_id
             """
         ), [{"user_id" : user_id}]).all()
@@ -117,6 +119,7 @@ def get_review_by_user(user_id: int):
     review_list = []
     for review in reviews:
         review_list.append({
+            "recipe": review.name,
             "recipe_id": review.recipe_id,
             "rating": review.rating,
             "review": review.review_description,
@@ -142,8 +145,10 @@ def get_review_by_user(user_id: int, recipe_id: int):
             return "user_id does not exist"
 
         reviews = connection.execute(sqlalchemy.text(
-            """SELECT rating, review_description, review_date
+            """SELECT rating, review_description, review_date, recipe.name AS nae
             FROM review
+            JOIN recipe
+            ON review.recipe_id = recipe.recipe_id
             WHERE user_id = :user_id AND recipe_id = :recipe_id
             """
         ), [{"user_id" : user_id,
@@ -155,6 +160,7 @@ def get_review_by_user(user_id: int, recipe_id: int):
     review_list = []
     for review in reviews:
         review_list.append({
+            "recipe": review.name, 
             "rating": review.rating,
             "review": review.review_description,
             "review_date": review.review_date
