@@ -86,6 +86,7 @@ def get_recipes_parameter(recipe_constraints : RecipeMarcosObject):
 @router.get("/get_recipe_name")
 def get_recipes_by_name(recipe_name: str):
     final_recipes = []
+    recipe_name = recipe_name.title()
     recipe_name = recipe_name + '%'
 
     with db.engine.begin() as connection:
