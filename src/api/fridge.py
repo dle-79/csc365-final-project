@@ -170,7 +170,7 @@ def remove_recipe_ingredients_from_fridge(recipe_id: int, user_id: int, servings
             FROM recipe
             WHERE recipe_id = :recipe_id 
             """
-        ), [{"user_id" : recipe_id}]).scalar()
+        ), [{"recipe_id" : recipe_id}]).scalar()
 
         if check2 is None:
             return "no recipe_id found"
