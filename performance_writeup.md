@@ -1,5 +1,7 @@
 Fake Data Modeling
 
+code for faking the data is found in insert_values.py
+
 Table_Name : Number_of_Inputs : Justification
 
 fridge : 388,928 : Each user will have between 10 and 50 ingredients in their virtual fridge, reflecting the diversity of items individuals typically keep on hand for cooking and daily meals. Considering the varying culinary preferences and dietary choices in real life, this range provides a flexible and realistic representation of users' virtual pantries.
