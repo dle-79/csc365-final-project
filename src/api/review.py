@@ -189,7 +189,7 @@ def get_review_by_user(user_id: int, recipe_id: int):
             return "no recipe_id found"
 
         reviews = connection.execute(sqlalchemy.text(
-            """SELECT rating, review_description, review_date, recipe.name AS nae
+            """SELECT rating, review_description, review_date, recipe.name AS name
             FROM review
             JOIN recipe
             ON review.recipe_id = recipe.recipe_id
