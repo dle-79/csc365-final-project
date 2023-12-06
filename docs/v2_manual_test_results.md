@@ -1,5 +1,5 @@
 # Example workflow
-1. Lucas wants to make a meal that feeds 20, but learns he doesn’t have enough ingredients after entering the parameters. He is missing garlic, steak and unslated butter. He then adds the ingredients to his shopping list.
+1. Lucas wants to make a meal that feeds 20, but learns he doesn’t have enough ingredients after entering the parameters. He is missing garlic, steak and unsalted butter. He then adds the ingredients to his shopping list.
 
 - Lucas starts by calling POST /fridge/add_to_fridge_fridge_add_ingredients_post
 - Lucas first calls POST/recipes, 20 for servings
@@ -14,18 +14,19 @@
 
 # Testing results Trevor
 1. Removes the item that went bad brussel sprouts
-curl -X 'POST' \
-  'http://127.0.0.1:8000/fridge/remove_ingredient?ingredient_id=25&user_id=4' \
-  -H 'accept: application/json' \
-  -d ''
+curl -X 'POST' 
+  https://recipe-guide.onrender.com/fridge/remove_ingredients?ingredient_id=25&user_id=4
+  -H 'accept: application/json'
+  -H 'Content-Type: application/json'
+  -d '{"ingredient_id" : 25', user_id : 4"}
 
-2. "OK"
+3. "ingredient updated"
 
-3. Find recipes
+4. Find recipes
 curl -X 'POST' \
-  'http://127.0.0.1:8000/recipe/get_recipe?user_id=4' \
-  -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
+  'https://recipe-guide.onrender.com/recipe/get_recipe_name?user_id=4'
+  -H 'accept: application/json'
+  -H 'Content-Type: application/json' 
   -d '{
   "protein": 0,
   "calories": 0,
@@ -37,43 +38,40 @@ curl -X 'POST' \
   "time_to_make": 0
 }'
 
-4. 
+6. 
 [
+
   {
-    "recipe_id": 2,
-    "sku": "GARLIC_BUTTER_STEAK_BITES_0",
-    "name": "garlic butter steak bites",
+    "name": "Garlic Butter Steak Bites"
+    "recipe_id": 1,
     "steps": "1. Season the steak bites with salt, pepper, and red pepper flakes and stir until well coated.\n2. Heat a large skillet over medium-high heat. Add the avocado oil to the hot skillet and then add the steak in a single layer. Cook the steak bites for 3-4 minutes until brown, stirring occasionally. You may have to do this in batches depending on the size of your skillet. Once the steak is brown, remove it from the pan.\n3. Remove any excess water from the skillet and then add the butter or ghee to the pan. Next add the garlic and saute for 1 minute.\n4. Add the steak back to the pan and cook for 1-2 minutes stirring to coat it in the butter sauce. Remove the pan from the heat and stir in the chopped parsley. Garnish with green onion and serve immediately."
   }
 ]
 
-5. Remove the ingredients used
+7. Remove the ingredients used
 curl -X 'POST' \
-  'http://127.0.0.1:8000/fridge/remove_repice_ingredients?recipe_id=4&user_id=2' \
-  -H 'accept: application/json' \
+  'https://recipe-guide.onrender.com/fridge/remove_recipe_ingredients?recipe_id=1&user_id=4'
+  -H 'accept: application/json' 
   -d ''
 
-6. "OK"
+8. "OK"
 
 
 # Testing results Lucas
-1. Lucas user is created 
-curl -X 'POST' \
-  'http://127.0.0.1:8000/user/' \
-  -H 'accept: application/json' \
-  -H 'access_token: recipe' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "name": "Lucas"
-}'
+1. Lucas user is created curl -X 'POST'
+'https://recipe-guide.onrender.com/user/create_user'
+-H 'accept: application/json'
+-H 'access_token: recipe'
+-H 'Content-Type: application/json'
+-d '{ "name": "Lucas" }'
 
-2. "string"
+2. Return: { user_id : 16 }
 
 3. Remove looks to see if he can make any recipe with 20 servings
 curl -X 'POST' \
-  'http://127.0.0.1:8000/recipe/get_recipe?user_id=3' \
-  -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
+  'https://recipe-guide.onrender.com/recipe/get_recipe_name?user_id=16'
+  -H 'accept: application/json' 
+  -H 'Content-Type: application/json' 
   -d '{
   "protein": 0,
   "calories": 0,
@@ -89,26 +87,26 @@ curl -X 'POST' \
 
 5. Add the ingredients to his shopping list
 curl -X 'POST' \
-  'http://127.0.0.1:8000/shoppingList/add_ingredients?user_id=3' \
-  -H 'accept: application/json' \
-  -H 'access_token: recipe' \
-  -H 'Content-Type: application/json' \
+  ''https://recipe-guide.onrender.com/shoppingList/add_ingredients?user_id=16' \
+  -H 'accept: application/json' 
+  -H 'access_token: recipe' 
+  -H 'Content-Type: application/json' 
   -d '[
   {
-    "id": 13,
-    "name": "steak",
+    "user_id": 16,
+    "ingredient_id": 295,
     "quantity": 5
   },
 {
-    "id": 7,
-    "name": "garlic",
+    "user_id": 16,
+    "ingredient_id": 596,
     "quantity": 6
   },
 {
-    "id": 15,
-    "name": "unsalted butter",
+    "user_id": 16,
+    "ingredient_id": 202,
     "quantity": 2
   }
 ]'
 
-6. "OK"
+6. "Added ingredient"
